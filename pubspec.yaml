@@ -1,0 +1,69 @@
+name: genius_store
+description: A comprehensive e-commerce mobile application built with Flutter and Firebase.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^2.15.0
+  firebase_auth: ^4.7.2
+  cloud_firestore: ^4.8.4
+  firebase_storage: ^11.2.5
+  firebase_analytics: ^10.4.4
+  firebase_messaging: ^14.6.5
+  firebase_crashlytics: ^3.3.4
+
+  # State Management
+  flutter_riverpod: ^2.3.6
+  equatable: ^2.0.5
+
+  # UI
+  cupertino_icons: ^1.0.5
+  cached_network_image: ^3.2.3
+  flutter_svg: ^2.0.7
+  shimmer: ^3.0.0
+  carousel_slider: ^4.2.1
+  flutter_rating_bar: ^4.0.1
+  lottie: ^2.5.0
+
+  # Utilities
+  intl: ^0.18.1
+  logger: ^1.4.0
+  dio: ^5.3.0
+  shared_preferences: ^2.2.0
+  uuid: ^3.0.7
+  image_picker: ^0.8.9
+  url_launcher: ^6.1.12
+  path_provider: ^2.0.15
+  flutter_secure_storage: ^8.0.0
+  connectivity_plus: ^4.0.1
+  permission_handler: ^10.4.3
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.2
+  build_runner: ^2.4.6
+  mockito: ^5.4.2
+  flutter_launcher_icons: ^0.13.1
+
+dependency_overrides:
+  intl: ^0.18.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+    - assets/lang/
