@@ -1,17 +1,17 @@
-# طبقة البيانات (Data Layer)
+# طبقة البيانات
 
-[![English](https://img.shields.io/badge/Language-English-blueviolet?style=for-the-badge)](README.md)
+[![English](https://img.shields.io/badge/Language-English-blue?style=for-the-badge)](README.md)
 
-طبقة البيانات مسؤولة عن إدارة البيانات في تطبيق متجر Genius. تنفذ واجهات المستودعات المحددة في طبقة المجال وتوفر التنفيذ الملموس لعمليات البيانات.
+طبقة البيانات مسؤولة عن إدارة البيانات في تطبيق متجر جينيوس. تقوم بتنفيذ واجهات المستودعات المحددة في طبقة المجال وتوفر التنفيذ الفعلي لعمليات البيانات.
 
 ## الغرض
 
 طبقة البيانات:
 
 - تنفذ واجهات المستودعات من طبقة المجال
-- تدير مصادر البيانات (عن بعد، محلية، إلخ)
-- تتعامل مع تسلسل البيانات وإلغاء تسلسلها
-- تنفذ استراتيجيات تخزين مؤقت للبيانات
+- تدير مصادر البيانات (البعيدة، المحلية، إلخ)
+- تعالج تسلسل البيانات وإلغاء تسلسلها
+- تنفذ استراتيجيات تخزين البيانات المؤقت
 - توفر معالجة الأخطاء لعمليات البيانات
 - تجرد تفاصيل مصدر البيانات الأساسية من طبقة المجال
 
@@ -19,12 +19,12 @@
 
 ```text
 data/
-├── datasources/       # تنفيذات مصدر البيانات
+├── datasources/       # تنفيذات مصادر البيانات
 │   ├── local/         # تنفيذات التخزين المحلي
-│   └── remote/        # تنفيذات واجهة برمجة التطبيقات عن بعد
+│   └── remote/        # تنفيذات واجهة برمجة التطبيقات البعيدة
 ├── models/            # نماذج البيانات (DTOs)
-│   ├── request/       # نماذج الطلب لواجهات برمجة التطبيقات
-│   └── response/      # نماذج الاستجابة من واجهات برمجة التطبيقات
+│   ├── request/       # نماذج الطلبات لواجهات البرمجة
+│   └── response/      # نماذج الاستجابة من واجهات البرمجة
 └── repositories/      # تنفيذات المستودعات
 ```
 
@@ -36,17 +36,17 @@ data/
 flowchart TD
     subgraph Domain Layer
         DomainEntities[كيانات المجال]
-        RepositoryInterfaces[واجهات المستودعات]
+        RepositoryInterfaces[واجهات المستودع]
     end
     
     subgraph Data Layer
-        RepositoryImplementations[تنفيذات المستودعات]
+        RepositoryImplementations[تنفيذات المستودع]
         Models[نماذج البيانات]
         DataSources[مصادر البيانات]
     end
     
     subgraph External
-        Remote[واجهات برمجة التطبيقات عن بعد]
+        Remote[واجهات برمجة التطبيقات البعيدة]
         Local[التخزين المحلي]
     end
     
@@ -60,9 +60,9 @@ flowchart TD
 
 ## المكونات الرئيسية
 
-### نماذج البيانات (Data Models)
+### نماذج البيانات
 
-نماذج البيانات في الدليل `models/` تمثل إصدارات قابلة للتسلسل من كيانات المجال:
+نماذج البيانات في دليل `models/` تمثل الإصدارات القابلة للتسلسل من كيانات المجال:
 
 ```dart
 class ProductModel extends Product {
@@ -154,13 +154,13 @@ class ProductModel extends Product {
 }
 ```
 
-### مصادر البيانات (Data Sources)
+### مصادر البيانات
 
-مصادر البيانات في الدليل `datasources/` تتعامل مع التفاعلات مع مزودي البيانات المحددين:
+مصادر البيانات في دليل `datasources/` تتعامل مع التفاعلات مع موفري البيانات المحددين:
 
-#### مصادر البيانات عن بعد (Remote Data Sources)
+#### مصادر البيانات البعيدة
 
-مصادر البيانات عن بعد تتواصل مع واجهات برمجة التطبيقات الخارجية:
+مصادر البيانات البعيدة تتواصل مع واجهات برمجة التطبيقات الخارجية:
 
 ```dart
 abstract class ProductRemoteDataSource {
@@ -211,7 +211,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       } else {
         throw ServerException(
           code: response.statusCode,
-          message: response.data['message'] ?? 'فشل في جلب المنتجات',
+          message: response.data['message'] ?? 'Failed to fetch products',
         );
       }
     } catch (e) {
@@ -222,7 +222,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         );
       }
       throw const ServerException(
-        message: 'حدث خطأ غير متوقع',
+        message: 'An unexpected error occurred',
       );
     }
   }
@@ -231,7 +231,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 }
 ```
 
-#### مصادر البيانات المحلية (Local Data Sources)
+#### مصادر البيانات المحلية
 
 مصادر البيانات المحلية تدير البيانات المخزنة محليًا:
 
@@ -251,6 +251,307 @@ abstract class ProductLocalDataSource {
 class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   final SharedPreferences sharedPreferences;
   
-  // تنفيذ مصدر البيانات المحلية...
+  ProductLocalDataSourceImpl({required this.sharedPreferences});
+  
+  @override
+  Future<List<ProductModel>> getCachedProducts() async {
+    final jsonString = sharedPreferences.getString(CacheConstants.cachedProducts);
+    
+    if (jsonString != null) {
+      try {
+        final List<dynamic> jsonList = json.decode(jsonString);
+        return jsonList
+            .map((json) => ProductModel.fromJson(json))
+            .toList();
+      } catch (e) {
+        throw CacheException(message: 'Failed to parse cached products');
+      }
+    } else {
+      throw CacheException(message: 'No cached products found');
+    }
+  }
+  
+  @override
+  Future<void> cacheProducts(List<ProductModel> products) async {
+    final List<Map<String, dynamic>> jsonList = 
+        products.map((product) => product.toJson()).toList();
+    
+    await sharedPreferences.setString(
+      CacheConstants.cachedProducts,
+      json.encode(jsonList),
+    );
+  }
+  
+  // تنفيذات الطرق الأخرى...
+}
+```
+
+### المستودعات
+
+تنفيذات المستودع في دليل `repositories/` تنسق بين مصادر البيانات:
+
+```dart
+class ProductRepositoryImpl implements ProductRepository {
+  final ProductRemoteDataSource remoteDataSource;
+  final ProductLocalDataSource localDataSource;
+  final NetworkInfo networkInfo;
+  
+  ProductRepositoryImpl({
+    required this.remoteDataSource,
+    required this.localDataSource,
+    required this.networkInfo,
+  });
+  
+  @override
+  Future<Either<Failure, List<Product>>> getProducts({
+    String? categoryId,
+    Map<String, dynamic>? filters,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteProducts = await remoteDataSource.getProducts(
+          categoryId: categoryId,
+          filters: filters,
+          page: page,
+          pageSize: pageSize,
+        );
+        
+        // تخزين المنتجات مؤقتًا إذا كانت الصفحة الأولى
+        if (page == 1) {
+          await localDataSource.cacheProducts(remoteProducts);
+        }
+        
+        return Right(remoteProducts);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
+      }
+    } else {
+      try {
+        // إرجاع البيانات المخزنة مؤقتًا للصفحة الأولى فقط عندما يكون في وضع عدم الاتصال
+        if (page == 1) {
+          final localProducts = await localDataSource.getCachedProducts();
+          return Right(localProducts);
+        } else {
+          return Left(NetworkFailure(
+            message: 'Cannot load more products while offline',
+          ));
+        }
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      }
+    }
+  }
+  
+  // تنفيذات الطرق الأخرى...
+}
+```
+
+## تدفق البيانات
+
+يتبع تدفق البيانات في طبقة البيانات هذا النمط:
+
+```mermaid
+sequenceDiagram
+    participant D as طبقة المجال
+    participant R as المستودع
+    participant N as معلومات الشبكة
+    participant RDS as مصدر البيانات البعيد
+    participant LDS as مصدر البيانات المحلي
+    participant API as واجهة برمجة التطبيقات الخارجية
+    participant Cache as التخزين المؤقت المحلي
+    
+    D->>R: طلب البيانات
+    R->>N: التحقق من الاتصال
+    
+    alt متصل بالإنترنت
+        N-->>R: الجهاز متصل بالإنترنت
+        R->>RDS: طلب البيانات
+        RDS->>API: طلب واجهة برمجة التطبيقات
+        API-->>RDS: استجابة واجهة برمجة التطبيقات
+        RDS-->>R: إرجاع البيانات المحللة
+        R->>LDS: تخزين البيانات مؤقتًا
+        LDS->>Cache: حفظ في التخزين المؤقت
+        R-->>D: إرجاع النجاح مع البيانات
+    else غير متصل بالإنترنت
+        N-->>R: الجهاز غير متصل بالإنترنت
+        R->>LDS: طلب البيانات المخزنة مؤقتًا
+        LDS->>Cache: استرجاع من التخزين المؤقت
+        
+        alt التخزين المؤقت متاح
+            Cache-->>LDS: إرجاع البيانات المخزنة مؤقتًا
+            LDS-->>R: إرجاع البيانات المخزنة مؤقتًا
+            R-->>D: إرجاع النجاح مع البيانات المخزنة مؤقتًا
+        else التخزين المؤقت غير متاح
+            Cache-->>LDS: التخزين المؤقت غير موجود
+            LDS-->>R: استثناء التخزين المؤقت
+            R-->>D: إرجاع الفشل
+        end
+    end
+```
+
+## استراتيجية التخزين المؤقت
+
+تنفذ طبقة البيانات استراتيجية التخزين المؤقت ثم الشبكة:
+
+1. أولاً، محاولة استرداد البيانات من التخزين المؤقت المحلي
+2. إذا كانت البيانات المخزنة مؤقتًا موجودة، إرجاعها على الفور
+3. ثم، جلب البيانات المحدثة من الشبكة في الخلفية
+4. تحديث واجهة المستخدم بأحدث البيانات بمجرد توفرها
+5. تخزين أحدث البيانات في التخزين المؤقت للاستخدام المستقبلي
+
+توفر هذه الاستراتيجية:
+
+- تحميل أولي سريع من التخزين المؤقت
+- بيانات محدثة دائمًا عند الاتصال
+- وظائف في وضع عدم الاتصال باستخدام البيانات المخزنة مؤقتًا
+
+## معالجة الأخطاء
+
+معالجة الأخطاء في طبقة البيانات:
+
+1. التقاط الاستثناءات من مصادر البيانات
+2. تعيينها إلى إخفاقات خاصة بالمجال
+3. إرجاع الإخفاقات باستخدام نمط Either
+4. توفير معلومات مفصلة عن الخطأ للطبقات العليا
+
+تشمل أنواع الأخطاء:
+
+- `ServerFailure`: أخطاء واجهة برمجة التطبيقات البعيدة
+- `CacheFailure`: أخطاء التخزين المحلي
+- `NetworkFailure`: مشاكل الاتصال
+- `ValidationFailure`: تنسيق بيانات غير صالح
+- `AuthenticationFailure`: أخطاء المصادقة
+
+## التبعيات
+
+تعتمد طبقة البيانات على:
+
+- طبقة `Domain` لواجهات المستودع والكيانات
+- طبقة `Core` للأدوات المساعدة والثوابت والمكونات المشتركة
+- حزم خارجية للاتصال بواجهة برمجة التطبيقات (`dio`)
+- حزم التخزين المحلي (`shared_preferences`, `hive`)
+- خدمات Firebase (`firebase_auth`, `cloud_firestore`)
+
+## الاختبار
+
+يتم اختبار طبقة البيانات باستخدام:
+
+1. اختبارات الوحدة للنماذج ومصادر البيانات والمستودعات
+2. اختبارات المحاكاة للتبعيات الخارجية (واجهات برمجة التطبيقات، قواعد البيانات)
+3. اختبارات التكامل لتنفيذات المستودع
+4. اختبارات سلوك التخزين المؤقت
+
+مثال اختبار لمستودع:
+
+```dart
+void main() {
+  late ProductRepositoryImpl repository;
+  late MockProductRemoteDataSource mockRemoteDataSource;
+  late MockProductLocalDataSource mockLocalDataSource;
+  late MockNetworkInfo mockNetworkInfo;
+
+  setUp(() {
+    mockRemoteDataSource = MockProductRemoteDataSource();
+    mockLocalDataSource = MockProductLocalDataSource();
+    mockNetworkInfo = MockNetworkInfo();
+    repository = ProductRepositoryImpl(
+      remoteDataSource: mockRemoteDataSource,
+      localDataSource: mockLocalDataSource,
+      networkInfo: mockNetworkInfo,
+    );
+  });
+
+  group('getProducts', () {
+    final tProducts = [
+      ProductModel(
+        id: '1',
+        nameLocalized: {'en': 'Test Product'},
+        // حقول أخرى...
+      ),
+    ];
+
+    test('should check if the device is online', () async {
+      // ترتيب
+      when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      when(mockRemoteDataSource.getProducts())
+          .thenAnswer((_) async => tProducts);
+      // تنفيذ
+      await repository.getProducts();
+      // تأكيد
+      verify(mockNetworkInfo.isConnected);
+    });
+
+    group('device is online', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      });
+
+      test('should return remote data when call to remote data source is successful', () async {
+        // ترتيب
+        when(mockRemoteDataSource.getProducts())
+            .thenAnswer((_) async => tProducts);
+        // تنفيذ
+        final result = await repository.getProducts();
+        // تأكيد
+        verify(mockRemoteDataSource.getProducts());
+        expect(result, equals(Right(tProducts)));
+      });
+
+      test('should cache the data locally when call to remote data source is successful', () async {
+        // ترتيب
+        when(mockRemoteDataSource.getProducts())
+            .thenAnswer((_) async => tProducts);
+        // تنفيذ
+        await repository.getProducts();
+        // تأكيد
+        verify(mockRemoteDataSource.getProducts());
+        verify(mockLocalDataSource.cacheProducts(tProducts));
+      });
+
+      test('should return server failure when call to remote data source is unsuccessful', () async {
+        // ترتيب
+        when(mockRemoteDataSource.getProducts())
+            .thenThrow(ServerException(message: 'Server error'));
+        // تنفيذ
+        final result = await repository.getProducts();
+        // تأكيد
+        verify(mockRemoteDataSource.getProducts());
+        verifyZeroInteractions(mockLocalDataSource);
+        expect(result, equals(Left(ServerFailure(message: 'Server error'))));
+      });
+    });
+
+    group('device is offline', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => false);
+      });
+
+      test('should return cached data when cached data is present', () async {
+        // ترتيب
+        when(mockLocalDataSource.getCachedProducts())
+            .thenAnswer((_) async => tProducts);
+        // تنفيذ
+        final result = await repository.getProducts();
+        // تأكيد
+        verifyZeroInteractions(mockRemoteDataSource);
+        verify(mockLocalDataSource.getCachedProducts());
+        expect(result, equals(Right(tProducts)));
+      });
+
+      test('should return CacheFailure when there is no cached data', () async {
+        // ترتيب
+        when(mockLocalDataSource.getCachedProducts())
+            .thenThrow(CacheException(message: 'No cached data'));
+        // تنفيذ
+        final result = await repository.getProducts();
+        // تأكيد
+        verifyZeroInteractions(mockRemoteDataSource);
+        verify(mockLocalDataSource.getCachedProducts());
+        expect(result, equals(Left(CacheFailure(message: 'No cached data'))));
+      });
+    });
+  });
 }
 ```

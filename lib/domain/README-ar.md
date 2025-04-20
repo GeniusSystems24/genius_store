@@ -2,17 +2,17 @@
 
 [![English](https://img.shields.io/badge/Language-English-blueviolet?style=for-the-badge)](README.md)
 
-تحتوي طبقة المجال على منطق الأعمال الأساسي وقواعد تطبيق متجر Genius. وهي مستقلة عن الطبقات والأطر الأخرى، مما يجعلها الجزء الأكثر استقرارًا وقابلية للاختبار في التطبيق.
+تحتوي طبقة المجال على منطق الأعمال الأساسي وقواعد تطبيق Genius Store. وهي مستقلة عن الطبقات والأطر الأخرى، مما يجعلها الجزء الأكثر استقرارًا وقابلية للاختبار في التطبيق.
 
 ## الغرض
 
 طبقة المجال:
 
-- تحدد منطق وقواعد الأعمال الأساسية
+- تحدد منطق الأعمال الأساسي والقواعد
 - تحتوي على كيانات الأعمال وكائنات القيمة
-- تحدد واجهات المستودعات للوصول إلى البيانات
+- تحدد واجهات المستودع للوصول إلى البيانات
 - تنفذ حالات الاستخدام التي تنظم عمليات الأعمال
-- تبقى مستقلة عن واجهة المستخدم وتنفيذات مصدر البيانات
+- تظل مستقلة عن واجهة المستخدم وتنفيذات مصدر البيانات
 - تؤسس لغة مشتركة لمجال التطبيق
 
 ## هيكل الدليل
@@ -20,13 +20,13 @@
 ```text
 domain/
 ├── entities/         # نماذج كائنات الأعمال
-├── repositories/     # واجهات المستودعات
+├── repositories/     # واجهات المستودع
 └── usecases/         # عمليات الأعمال
 ```
 
 ## نظرة عامة على البنية
 
-تتبع طبقة المجال نمط البنية النظيفة وتنفذ نمط حالة الاستخدام:
+تتبع طبقة المجال نمط العمارة النظيفة (Clean Architecture) وتنفذ نمط حالة الاستخدام:
 
 ```mermaid
 flowchart TD
@@ -37,12 +37,12 @@ flowchart TD
     
     subgraph Domain Layer
         Entities[الكيانات]
-        Repositories[واجهات المستودعات]
+        Repositories[واجهات المستودع]
         UseCases[حالات الاستخدام]
     end
     
     subgraph Data Layer
-        RepoImpls[تنفيذات المستودعات]
+        RepoImpls[تنفيذات المستودع]
         DataSources[مصادر البيانات]
     end
     
@@ -57,9 +57,9 @@ flowchart TD
 
 ## المكونات الرئيسية
 
-### الكيانات (Entities)
+### الكيانات
 
-الكيانات في الدليل `entities/` هي كائنات الأعمال الأساسية للتطبيق:
+الكيانات في دليل `entities/` هي كائنات الأعمال الأساسية للتطبيق:
 
 ```dart
 class Product {
@@ -89,7 +89,7 @@ class Product {
     required this.averageRating,
   });
   
-  // طرق منطق الأعمال الخالصة
+  // طرق منطق الأعمال النقية
   String getName(String languageCode) {
     return nameLocalized[languageCode] ?? nameLocalized['en'] ?? '';
   }
@@ -116,9 +116,9 @@ class Product {
 }
 ```
 
-### المستودعات (Repositories)
+### المستودعات
 
-واجهات المستودعات في الدليل `repositories/` تحدد كيفية وصول طبقة المجال إلى البيانات:
+واجهات المستودع في دليل `repositories/` تحدد كيفية وصول طبقة المجال إلى البيانات:
 
 ```dart
 abstract class ProductRepository {
@@ -141,9 +141,9 @@ abstract class ProductRepository {
 }
 ```
 
-### حالات الاستخدام (Use Cases)
+### حالات الاستخدام
 
-حالات الاستخدام في الدليل `usecases/` تغلف عمليات الأعمال المحددة:
+حالات الاستخدام في دليل `usecases/` تغلف عمليات الأعمال المحددة:
 
 ```dart
 class GetProducts {
@@ -194,7 +194,7 @@ class AddToCart {
           ));
         }
         
-        // البحث عن المتغير المحدد
+        // العثور على المتغير المحدد
         final variant = product.variants?.firstWhere(
           (v) => v.id == variantId,
           orElse: () => null,
@@ -209,11 +209,11 @@ class AddToCart {
         
         if (variant.stockQuantity < quantity) {
           return Left(BusinessFailure(
-            message: 'لا توجد عناصر كافية في المخزون. متاح فقط ${variant.stockQuantity}.'
+            message: 'لا توجد كمية كافية في المخزون. متاح فقط ${variant.stockQuantity}.'
           ));
         }
         
-        // إذا اجتازت جميع الفحوصات، أضف إلى السلة
+        // إذا نجحت جميع الفحوصات، أضف إلى السلة
         return await cartRepository.addItemToCart(
           cartId: cartId,
           productId: productId,
@@ -229,7 +229,7 @@ class AddToCart {
 
 ## معالجة الأخطاء
 
-تستخدم طبقة المجال النوع `Either` من حزمة dartz لمعالجة الأخطاء:
+تستخدم طبقة المجال نوع `Either` من حزمة dartz لمعالجة الأخطاء:
 
 ```dart
 // واجهة المستودع مع نوع إرجاع Either
@@ -248,11 +248,179 @@ class SignIn {
   SignIn(this.repository);
   
   Future<Either<Failure, User>> call(String email, String password) async {
-    if (email.isEmpty) {
-      return Left(ValidationFailure(message: 'لا يمكن أن يكون البريد الإلكتروني فارغًا'));
-    }
-    // المزيد من التحقق من الصحة والمنطق الأعمال...
     return await repository.signIn(email, password);
   }
 }
 ```
+
+حالات الفشل هي كائنات مشتقة من فئة `Failure` الأساسية:
+
+```dart
+abstract class Failure {
+  final String message;
+  
+  const Failure({required this.message});
+}
+
+class ServerFailure extends Failure {
+  const ServerFailure({required String message}) : super(message: message);
+}
+
+class NetworkFailure extends Failure {
+  const NetworkFailure({required String message}) : super(message: message);
+}
+
+class AuthenticationFailure extends Failure {
+  const AuthenticationFailure({required String message}) : super(message: message);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure({required String message}) : super(message: message);
+}
+
+class BusinessFailure extends Failure {
+  const BusinessFailure({required String message}) : super(message: message);
+}
+```
+
+## نماذج النجاح
+
+نتائج العملية الناجحة تعود في الجانب الأيمن من `Either`:
+
+```dart
+// مثال لحالة استخدام مع معالجة النتيجة
+Future<void> signInUser(String email, String password) async {
+  final result = await signIn(email, password);
+  
+  result.fold(
+    (failure) {
+      // معالجة الفشل
+      showErrorMessage(failure.message);
+    },
+    (user) {
+      // معالجة النجاح
+      navigateToHome(user);
+    },
+  );
+}
+```
+
+## القواعد والسياسات
+
+تنفذ طبقة المجال قواعد وسياسات الأعمال المعقدة:
+
+### سياسات التسعير
+
+```dart
+class PricingPolicy {
+  double calculateFinalPrice(Product product, User user, List<Promotion> activePromotions) {
+    double basePrice = product.basePrice;
+    double discount = 0.0;
+    
+    // تطبيق خصم المتجر (إن وجد)
+    final storePromotion = activePromotions.firstWhere(
+      (promo) => promo.type == PromotionType.storeWide && promo.isActive,
+      orElse: () => Promotion.empty(),
+    );
+    
+    if (storePromotion.isNotEmpty) {
+      discount = basePrice * (storePromotion.discountPercentage / 100);
+    }
+    
+    // تطبيق خصم المنتج المحدد (إن وجد)
+    final productPromotion = activePromotions.firstWhere(
+      (promo) => promo.appliesTo.contains(product.id) && promo.isActive,
+      orElse: () => Promotion.empty(),
+    );
+    
+    if (productPromotion.isNotEmpty) {
+      // استخدم أعلى خصم
+      discount = max(discount, basePrice * (productPromotion.discountPercentage / 100));
+    }
+    
+    // تطبيق خصم العضوية (إن وجد)
+    if (user.membershipLevel != MembershipLevel.none) {
+      final membershipDiscount = basePrice * (user.membershipLevel.discountPercentage / 100);
+      discount = max(discount, membershipDiscount);
+    }
+    
+    return max(0, basePrice - discount);
+  }
+}
+```
+
+## المبادئ والممارسات
+
+تتبع طبقة المجال عدة مبادئ ومفاهيم رئيسية:
+
+1. **مبدأ المسؤولية الواحدة**: كل كيان وحالة استخدام لها مسؤولية واحدة محددة
+2. **مبدأ الانفتاح/الإغلاق**: الكيانات قابلة للتوسيع ولكنها مغلقة للتعديل
+3. **مبدأ التحكم بالاعتماديات (الحقن)**: الاعتماديات تُحقن في حالات الاستخدام
+4. **عزل التبعيات الخارجية**: طبقة المجال لا تعتمد على المكتبات الخارجية (بصرف النظر عن dartz للمساعدة في معالجة الأخطاء)
+5. **تطوير موجه بالمجال (DDD)**: هيكل التطبيق مبني حول مفاهيم المجال
+
+## الاختبارات
+
+طبقة المجال مختبرة بشكل شامل مع اختبارات الوحدة:
+
+```dart
+void main() {
+  late ProductRepository mockProductRepository;
+  late CartRepository mockCartRepository;
+  late AddToCart useCase;
+  
+  setUp(() {
+    mockProductRepository = MockProductRepository();
+    mockCartRepository = MockCartRepository();
+    useCase = AddToCart(
+      productRepository: mockProductRepository,
+      cartRepository: mockCartRepository,
+    );
+  });
+  
+  test('should return BusinessFailure when product is not active', () async {
+    // Arrange
+    final product = Product(
+      id: 'product_1',
+      nameLocalized: {'en': 'Test Product'},
+      descriptionLocalized: {'en': 'Test Description'},
+      basePrice: 100.0,
+      brand: 'Test Brand',
+      categoryId: 'category_1',
+      isFeatured: false,
+      isActive: false, // المنتج غير نشط
+      createdAt: DateTime.now(),
+      tags: [],
+      averageRating: 0.0,
+    );
+    
+    when(mockProductRepository.getProductById(any))
+        .thenAnswer((_) async => Right(product));
+    
+    // Act
+    final result = await useCase(
+      cartId: 'cart_1',
+      productId: 'product_1',
+      variantId: 'variant_1',
+      quantity: 1,
+    );
+    
+    // Assert
+    expect(result.isLeft(), true);
+    result.fold(
+      (failure) => expect(failure, isA<BusinessFailure>()),
+      (_) => fail('Should return a failure'),
+    );
+  });
+}
+```
+
+## الاستدامة والتوسعية
+
+تم تصميم طبقة المجال لتكون مستدامة وقابلة للتوسع من خلال التالي:
+
+1. **الاستقلال عن الأطر الخارجية**: لا توجد تبعيات على Flutter أو Firebase أو أي أطر خارجية
+2. **الواجهات المجردة**: جميع التفاعلات مع العالم الخارجي تتم من خلال واجهات مجردة
+3. **استراتيجية الفشل الواضحة**: استخدام نمط `Either` لمعالجة الأخطاء
+4. **مبادئ SOLID**: الالتزام بمبادئ التصميم الجيد
+5. **وضوح نطاق المسؤولية**: فصل واضح للمسؤوليات بين المكونات
