@@ -1,5 +1,7 @@
 # Data Sources
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 The data sources directory contains classes that handle direct communication with different data providers in the Genius Store application.
 
 ## Purpose

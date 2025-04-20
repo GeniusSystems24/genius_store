@@ -1,5 +1,7 @@
 # Genius Store - Library Directory Structure
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This document provides an overview of the Genius Store application architecture, structure, and components. The application follows **Clean Architecture** with **MVVM (Model-View-ViewModel)** pattern to achieve separation of concerns, testability, and maintainability.
 
 ## 🏗️ Architecture Overview

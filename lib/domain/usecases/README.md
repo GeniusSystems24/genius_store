@@ -1,5 +1,7 @@
 # Use Cases
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains use case classes that encapsulate the business logic of the Genius Store application. Each use case represents a specific action or transaction that a user can perform within the system.
 
 ## Purpose

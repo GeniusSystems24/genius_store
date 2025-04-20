@@ -1,5 +1,7 @@
 # Constants Module
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains constant values used throughout the Genius Store application.
 
 ## Purpose

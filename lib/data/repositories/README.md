@@ -1,5 +1,7 @@
 # Repository Implementations
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains concrete implementations of the repository interfaces defined in the domain layer of the Genius Store application.
 
 ## Purpose

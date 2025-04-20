@@ -1,5 +1,7 @@
 # Repository Interfaces
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains abstract classes that define the data access contracts for the Genius Store application. These interfaces establish how the domain layer interacts with data without knowing the implementation details.
 
 ## Purpose

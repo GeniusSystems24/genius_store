@@ -1,5 +1,7 @@
 # Genius Store - توصيف تطبيق متجر إلكتروني
 
+[![English](https://img.shields.io/badge/Language-English-blueviolet?style=for-the-badge)](README.md)
+
 تطبيق متجر إلكتروني متكامل مبني باستخدام **Flutter** لواجهة المستخدم و**Firebase** للخدمات الخلفية.
 
 ## 🏗️ الهيكل العام للتطبيق (Application Architecture)

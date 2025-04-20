@@ -1,5 +1,7 @@
 # Services Module
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains application-wide services that provide functionality across different features of the Genius Store application.
 
 ## Purpose

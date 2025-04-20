@@ -1,5 +1,7 @@
 # Domain Entities
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains the core business entities for the Genius Store application. These entities represent the fundamental business objects that encapsulate the most essential business rules.
 
 ## Purpose

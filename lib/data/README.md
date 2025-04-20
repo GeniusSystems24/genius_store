@@ -1,5 +1,7 @@
 # Data Layer
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 The Data layer is responsible for data management in the Genius Store application. It implements the repository interfaces defined in the Domain layer and provides the concrete implementation for data operations.
 
 ## Purpose

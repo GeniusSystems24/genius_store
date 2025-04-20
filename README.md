@@ -1,5 +1,7 @@
 # Genius Store - E-commerce Application Specification
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 A complete e-commerce application built using **Flutter** for the user interface and **Firebase** for backend services.
 
 ## 🏗️ Application Architecture

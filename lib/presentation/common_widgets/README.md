@@ -1,5 +1,7 @@
 # Common Widgets
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains reusable UI components that are shared across different screens in the Genius Store application. These widgets follow a consistent design language and help maintain UI consistency throughout the app.
 
 ## Purpose

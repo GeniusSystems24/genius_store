@@ -1,5 +1,7 @@
 # Domain Layer
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 The Domain layer contains the core business logic and rules of the Genius Store application. It is independent of other layers and frameworks, making it the most stable and testable part of the application.
 
 ## Purpose

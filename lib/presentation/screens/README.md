@@ -1,5 +1,7 @@
 # Screens
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains all the screens of the Genius Store application, organized by feature. Each screen implements a distinct view that users interact with.
 
 ## Purpose

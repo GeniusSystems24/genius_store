@@ -1,5 +1,7 @@
 # Presentation Layer
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 The Presentation layer implements the user interface of the Genius Store application. It follows the MVVM (Model-View-ViewModel) architectural pattern and uses Riverpod for state management.
 
 ## Purpose

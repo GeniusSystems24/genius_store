@@ -1,5 +1,7 @@
 # Error Handling Module
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains the error handling infrastructure for the Genius Store application.
 
 ## Purpose

@@ -1,5 +1,7 @@
 # Authentication Screens
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains screens related to user authentication in the Genius Store application.
 
 ## Purpose

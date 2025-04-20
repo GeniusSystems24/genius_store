@@ -1,5 +1,7 @@
 # Core
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains foundational components, utilities, and services that are used throughout the Genius Store application.
 
 ## Purpose

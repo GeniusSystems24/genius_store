@@ -1,5 +1,7 @@
 # Data Models
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 The models directory contains data transfer objects (DTOs) used to serialize and deserialize data when communicating with external services and local storage in the Genius Store application.
 
 ## Purpose

@@ -1,5 +1,7 @@
 # Localization Module
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains the internationalization and localization infrastructure for the Genius Store application.
 
 ## Purpose

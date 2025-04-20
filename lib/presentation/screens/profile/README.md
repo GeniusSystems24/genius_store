@@ -1,5 +1,7 @@
 # Profile Screens
 
+[![Arabic](https://img.shields.io/badge/Language-Arabic-blueviolet?style=for-the-badge)](README-ar.md)
+
 This directory contains screens related to user profile management and account settings in the Genius Store application.
 
 ## Purpose
