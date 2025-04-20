@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "lib/presentation/README.md",
                 "mode": "source",
                 "source": false
               },
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "bc22b112da194a4c",
@@ -95,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
+                "file": "lib/presentation/README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "README.md",
+                "file": "lib/presentation/README.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -143,7 +142,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "README.md",
+                "file": "lib/presentation/README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -171,16 +170,41 @@
   },
   "active": "6a340bb781cb21a6",
   "lastOpenFiles": [
+    "lib/common_widgets/README.md",
+    "lib/common_widgets",
+    "lib/presentation/screens/settings/README.md",
+    "lib/presentation/screens/settings",
+    "lib/presentation/screens/profile/README.md",
+    "lib/presentation/screens/product/README.md",
+    "lib/domain/usecases/README.md",
+    "lib/presentation/screens/checkout/README.md",
+    "lib/presentation/screens/cart/README.md",
+    "lib/presentation/screens/auth/README.md",
+    "lib/presentation/screens/auth",
+    "lib/presentation/screens/README.md",
+    "lib/presentation/common_widgets/README.md",
+    "lib/domain/repositories/README.md",
+    "lib/presentation/README.md",
+    "lib/README.md",
+    "README.md",
+    "README-ar.md",
+    "README copy.md",
+    "lib/domain/entities/README.md",
+    "lib/domain/README.md",
+    "lib/data/repositories/README.md",
+    "lib/data/models/README.md",
+    "lib/data/datasources/README.md",
+    "lib/data/README.md",
+    "lib/core/utils/README.md",
+    "lib/core/theme/README.md",
+    "lib/core/services/README.md",
+    "lib/core/routes/README.md",
     "build/flutter_assets/shaders/ink_sparkle.frag.spirv",
     "build/flutter_assets/shaders/ink_sparkle.frag",
     "build/flutter_assets/NOTICES",
     "build/flutter_assets/FontManifest.json",
     "build/flutter_assets/AssetManifest.bin.json",
     "build/flutter_assets/AssetManifest.bin",
-    "build/flutter_assets/AssetManifest.json",
-    "build/flutter_assets/shaders",
-    "build/flutter_assets/fonts/MaterialIcons-Regular.otf",
-    "build/flutter_assets/fonts",
-    "build/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf"
+    "build/flutter_assets/AssetManifest.json"
   ]
 }

@@ -1,169 +1,169 @@
-# Genius Store - E-commerce Application Specification
+# Genius Store - توصيف تطبيق متجر إلكتروني
 
-A complete e-commerce application built using **Flutter** for the user interface and **Firebase** for backend services.
+تطبيق متجر إلكتروني متكامل مبني باستخدام **Flutter** لواجهة المستخدم و**Firebase** للخدمات الخلفية.
 
-## 🏗️ Application Architecture
+## 🏗️ الهيكل العام للتطبيق (Application Architecture)
 
-### Architectural Design Pattern
+### نمط التصميم المعماري
 
-We rely on **Clean Architecture** with the **MVVM (Model-View-ViewModel)** pattern to separate responsibilities and facilitate testing and maintenance.
+نعتمد على **Clean Architecture** مع نمط **MVVM (Model-View-ViewModel)** لفصل المسؤوليات وتسهيل الاختبار والصيانة.
 
-### State Management
+### إدارة الحالة (State Management)
 
-We will use **Riverpod** for application state management due to the following benefits:
+سنستخدم **Riverpod** لإدارة حالة التطبيق نظراً لما يوفره من:
 
-- Dependency Injection
-- Stability and flexibility in state management
-- Ability to create scoped providers
-- Good integration with Hooks and async programming
+- إدارة التبعيات (Dependency Injection)
+- استقرار ومرونة في إدارة الحالة
+- إمكانية إنشاء providers محدودة النطاق
+- تكامل جيد مع الـ Hooks و async programming
 
-### File and Folder Organization
+### تنظيم الملفات والمجلدات
 
 ```text
 lib/
-├── core/                  # Shared core components
-│   ├── config/            # General configuration files
-│   ├── constants/         # Application constants
-│   ├── errors/            # Error handling
-│   ├── localization/      # Localization and translation
-│   ├── routes/            # Route management
-│   ├── services/          # Various services (analytics, connectivity)
-│   ├── theme/             # Visual design components
-│   └── utils/             # Utility tools
-├── data/                  # Data layer
-│   ├── datasources/       # Data sources (remote/local)
-│   ├── models/            # Data models
-│   └── repositories/      # Repository interface implementations
-├── domain/                # Business logic layer
-│   ├── entities/          # Domain entities
-│   ├── repositories/      # Repository interfaces
-│   └── usecases/          # Use cases
-├── presentation/          # User interface layer
-│   ├── common_widgets/    # Shared UI components
-│   ├── screens/           # Different screens
-│   │   ├── auth/          # Authentication screens
-│   │   ├── cart/          # Shopping cart screens
-│   │   ├── checkout/      # Checkout screens
-│   │   ├── home/          # Home screen
-│   │   ├── product/       # Product screens
-│   │   └── profile/       # Profile screens
-│   └── providers/         # Riverpod providers
-├── app.dart               # Application configuration point
-└── main.dart              # Application entry point
+├── core/                  # المكونات الأساسية المشتركة
+│   ├── config/            # ملفات التكوين العامة
+│   ├── constants/         # الثوابت المستخدمة بالتطبيق
+│   ├── errors/            # معالجة الأخطاء
+│   ├── localization/      # التعريب والترجمة
+│   ├── routes/            # إدارة المسارات
+│   ├── services/          # خدمات مختلفة (analytics, connectivity)
+│   ├── theme/             # مكونات التصميم المرئي
+│   └── utils/             # أدوات مساعدة
+├── data/                  # طبقة البيانات
+│   ├── datasources/       # مصادر البيانات (remote/local)
+│   ├── models/            # نماذج البيانات
+│   └── repositories/      # تنفيذ واجهات المستودعات
+├── domain/                # طبقة الأعمال المنطقية
+│   ├── entities/          # كيانات المجال
+│   ├── repositories/      # واجهات المستودعات
+│   └── usecases/          # حالات الاستخدام
+├── presentation/          # طبقة واجهة المستخدم
+│   ├── common_widgets/    # مكونات مشتركة للواجهة
+│   ├── screens/           # الشاشات المختلفة
+│   │   ├── auth/          # شاشات المصادقة
+│   │   ├── cart/          # شاشات سلة التسوق
+│   │   ├── checkout/      # شاشات الدفع
+│   │   ├── home/          # الشاشة الرئيسية
+│   │   ├── product/       # شاشات المنتج
+│   │   └── profile/       # شاشات الملف الشخصي
+│   └── providers/         # مزودي Riverpod
+├── app.dart               # نقطة تكوين التطبيق
+└── main.dart              # نقطة بداية التطبيق
 ```
 
-### Firebase Services Used
+### خدمات Firebase المستخدمة
 
-- **Firebase Authentication**: For user registration and management
-- **Cloud Firestore**: For data storage (products, orders, etc.)
-- **Firebase Storage**: For storing product images and media files
-- **Cloud Functions**: For complex operations (inventory updates, payment processing)
-- **Firebase Analytics**: For tracking application usage
-- **Firebase Messaging**: For notifications
+- **Firebase Authentication**: للتسجيل وإدارة المستخدمين
+- **Cloud Firestore**: لتخزين البيانات (المنتجات، الطلبات، إلخ)
+- **Firebase Storage**: لتخزين صور المنتجات وملفات الوسائط
+- **Cloud Functions**: للعمليات المعقدة (تحديث المخزون، معالجة الدفع)
+- **Firebase Analytics**: لتتبع استخدام التطبيق
+- **Firebase Messaging**: للإشعارات
 
-## 📱 UI Screens Description
+## 📱 وصف شاشات واجهة المستخدم (UI Screens)
 
-### Authentication Screens
+### شاشات المصادقة (Authentication)
 
-- **Login**: User login interface with email or social media accounts
-- **Create Account**: New user registration with email verification
-- **Forgot Password**: Password reset
+- **تسجيل الدخول**: واجهة دخول المستخدم بالبريد أو حسابات التواصل الاجتماعي
+- **إنشاء حساب**: تسجيل مستخدم جديد مع التحقق من البريد
+- **نسيان كلمة المرور**: إعادة تعيين كلمة المرور
 
-### Home Screen
+### الشاشة الرئيسية (Home)
 
-- **Featured Products**: Carousel displays of featured products
-- **Categories**: Display of main product categories
-- **Popular Products**: Horizontal list of best-selling products
-- **New Products**: Latest additions to the store
-- **Search Bar**: For product search
+- **العروض المميزة**: عروض دائرية للمنتجات المميزة
+- **الأقسام**: عرض التصنيفات الرئيسية للمنتجات
+- **المنتجات الشائعة**: قائمة أفقية بالمنتجات الأكثر مبيعاً
+- **المنتجات الجديدة**: أحدث الإضافات للمتجر
+- **شريط البحث**: للبحث عن المنتجات
 
-### Category Screen
+### شاشة القسم (Category)
 
-- **Category Product List**: Grid display of products
-- **Filters**: Filter by price, size, color, etc.
-- **Sorting Options**: Sort by newest, highest rated, price
+- **قائمة منتجات القسم**: عرض شبكي للمنتجات
+- **تصفية ومرشحات**: فلترة حسب السعر، المقاس، اللون، إلخ
+- **خيارات الترتيب**: ترتيب حسب الأحدث، الأعلى تقييماً، السعر
 
-### Product Details Screen
+### شاشة تفاصيل المنتج (Product Details)
 
-- **Product Images**: Multiple image gallery
-- **Product Information**: Name, description, rating
-- **Variant Selection**: Color and size selection
-- **Inventory Indicator**: Product availability
-- **Action Buttons**: Add to cart, add to favorites
+- **صور المنتج**: معرض صور متعدد
+- **معلومات المنتج**: الاسم، الوصف، التقييم
+- **اختيار المتغيرات**: اختيار اللون والمقاس
+- **مؤشر المخزون**: توفر المنتج
+- **أزرار العمليات**: إضافة للسلة، إضافة للمفضلة
 
-### Shopping Carts Screen
+### شاشة سلال التسوق (Carts)
 
-- **Cart List**: Display of user's multiple carts
-- **Create/Edit Cart**: Name and manage carts
-- **Cart Details**: Products inside the selected cart
-- **Quantity Change**: Increase/decrease product quantities
-- **Cart Summary**: Subtotal, discount, total
+- **قائمة السلال**: عرض السلال المتعددة للمستخدم
+- **إنشاء/تعديل سلة**: تسمية وإدارة السلال
+- **تفاصيل السلة**: المنتجات داخل السلة المحددة
+- **تغيير الكمية**: زيادة/نقصان كمية المنتجات
+- **ملخص السلة**: المجموع، الخصم، الإجمالي
 
-### Checkout Screen
+### شاشة الدفع (Checkout)
 
-- **Delivery Address Selection**: User's saved addresses
-- **Shipping Method**: Available delivery options
-- **Payment Method**: Credit cards, electronic payment
-- **Coupons**: Enter discount code
-- **Order Confirmation**: Final review before payment
+- **اختيار عنوان التوصيل**: عناوين المستخدم المحفوظة
+- **طريقة الشحن**: خيارات التوصيل المتاحة
+- **وسيلة الدفع**: بطاقات ائتمان، دفع إلكتروني
+- **الكوبونات**: إدخال رمز الخصم
+- **تأكيد الطلب**: مراجعة نهائية قبل الدفع
 
-### Profile
+### الملف الشخصي (Profile)
 
-- **Personal Information**: Update personal data
-- **Addresses**: Manage delivery addresses
-- **Payment Methods**: Manage saved payment methods
-- **My Orders**: History of previous and current orders
-- **Favorites**: Saved products
+- **المعلومات الشخصية**: تحديث البيانات الشخصية
+- **العناوين**: إدارة عناوين التوصيل
+- **طرق الدفع**: إدارة وسائل الدفع المحفوظة
+- **طلباتي**: سجل الطلبات السابقة والحالية
+- **المفضلة**: المنتجات المحفوظة
 
-## 🔄 Workflow Diagrams
+## 🔄 مخططات تدفق العمليات (Workflows)
 
-### Navigation Flow
+### تدفق التنقل (Navigation Flow)
 
 ```mermaid
 flowchart TD
-    A[Splash Screen] --> B{Logged in?}
-    B -->|Yes| C[Home Screen]
-    B -->|No| D[Login Screen]
+    A[Splash Screen] --> B{مسجل الدخول؟}
+    B -->|نعم| C[الشاشة الرئيسية]
+    B -->|لا| D[شاشة تسجيل الدخول]
     D --> C
     
-    C --> E[Category Page]
-    C --> F[Search Page]
-    C --> G[Cart Screen]
-    C --> H[Profile]
+    C --> E[صفحة القسم]
+    C --> F[صفحة البحث]
+    C --> G[شاشة السلة]
+    C --> H[الملف الشخصي]
     
-    E --> I[Product Details]
+    E --> I[تفاصيل المنتج]
     F --> I
     
-    I --> J{Add to Cart}
-    J -->|Create new cart| K[Create Cart]
-    J -->|Add to existing cart| L[Select Cart]
+    I --> J{إضافة للسلة}
+    J -->|إنشاء سلة جديدة| K[إنشاء سلة]
+    J -->|إضافة لسلة موجودة| L[اختيار السلة]
     
-    G --> M[Cart Details]
-    M --> N[Checkout Screen]
-    N --> O[Order Confirmation]
-    O --> P[Order Success Screen]
+    G --> M[تفاصيل السلة]
+    M --> N[شاشة الدفع]
+    N --> O[تأكيد الطلب]
+    O --> P[شاشة نجاح الطلب]
 ```
 
-### Purchase Process
+### سير عملية الشراء (Purchase Process)
 
 ```mermaid
 sequenceDiagram
-    User->>+Product Details: View Product
-    Product Details->>+User: Select Color and Size
-    User->>+Cart System: Add to Cart
-    Cart System->>+Firestore: Update Cart
-    User->>+Cart Screen: Review Cart
-    User->>+Checkout Screen: Proceed to Checkout
-    Checkout Screen->>+Payment System: Request Payment
-    Payment System->>+Payment Gateway: Process Payment
-    Payment Gateway->>+Payment System: Confirm Payment
-    Payment System->>+Cloud Functions: Create Order
-    Cloud Functions->>+Firestore: Update Inventory
-    Cloud Functions->>+Firestore: Record Order
-    Cloud Functions->>+User: Order Success Notification
+    المستخدم->>+تفاصيل المنتج: عرض المنتج
+    تفاصيل المنتج->>+المستخدم: اختيار اللون والمقاس
+    المستخدم->>+نظام السلة: إضافة للسلة
+    نظام السلة->>+Firestore: تحديث السلة
+    المستخدم->>+شاشة السلة: مراجعة السلة
+    المستخدم->>+شاشة الدفع: متابعة الشراء
+    شاشة الدفع->>+نظام الدفع: طلب دفع
+    نظام الدفع->>+Payment Gateway: معالجة الدفع
+    Payment Gateway->>+نظام الدفع: تأكيد الدفع
+    نظام الدفع->>+Cloud Functions: إنشاء طلب
+    Cloud Functions->>+Firestore: تحديث المخزون
+    Cloud Functions->>+Firestore: تسجيل الطلب
+    Cloud Functions->>+المستخدم: إشعار نجاح الطلب
 ```
 
-## 🗃️ Database Schema
+## 🗃️ مخطط قاعدة البيانات (Database Schema)
 
 ```mermaid
 erDiagram
@@ -316,9 +316,9 @@ erDiagram
     }
 ```
 
-## 📊 Data Models
+## 📊 نماذج البيانات (Data Models)
 
-### User Model
+### نموذج المستخدم (User Model)
 
 ```dart
 class User {
@@ -366,7 +366,7 @@ class User {
 }
 ```
 
-### Product Model
+### نموذج المنتج (Product Model)
 
 ```dart
 class Product {
@@ -442,7 +442,7 @@ class Product {
 }
 ```
 
-### Product Variant Model
+### نموذج متغيرات المنتج (Product Variant Model)
 
 ```dart
 class ProductVariant {
@@ -454,7 +454,7 @@ class ProductVariant {
   final int stockQuantity;
   final String sku;
   
-  // For easier access in the user interface
+  // للوصول أسهل في واجهة المستخدم
   final Color? color;
   final Size? size;
 
@@ -498,7 +498,7 @@ class ProductVariant {
 }
 ```
 
-### Cart Model
+### نموذج سلة التسوق (Cart Model)
 
 ```dart
 class Cart {
@@ -549,7 +549,7 @@ class Cart {
 }
 ```
 
-### Cart Item Model
+### نموذج عنصر السلة (Cart Item Model)
 
 ```dart
 class CartItem {
@@ -560,7 +560,7 @@ class CartItem {
   final int quantity;
   final double price;
   
-  // For easy access in the user interface
+  // للوصول السهل في واجهة المستخدم
   final Product? product;
   final ProductVariant? variant;
 
@@ -601,7 +601,7 @@ class CartItem {
 }
 ```
 
-### Order Model
+### نموذج الطلب (Order Model)
 
 ```dart
 class Order {
