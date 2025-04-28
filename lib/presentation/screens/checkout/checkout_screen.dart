@@ -1,695 +1,685 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/models/address_model.dart';
-import '../../../data/models/payment_method_model.dart';
+
+import '../../../core/core.dart';
+import 'components/address_card.dart';
+import 'components/checkout_summary_card.dart';
+import 'components/payment_method_card.dart';
+import 'components/shipping_method_card.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
-  const CheckoutScreen({Key? key}) : super(key: key);
+  const CheckoutScreen({super.key});
 
   @override
   ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
+  final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
-  AddressModel? _selectedAddress;
-  PaymentMethodModel? _selectedPaymentMethod;
-  String _shippingMethod = 'standard'; // standard, express
+  int _selectedAddressIndex = 0;
+  int _selectedPaymentMethodIndex = 0;
+  int _selectedShippingMethodIndex = 0;
+  bool _isPlacingOrder = false;
+  String? _appliedCoupon;
 
-  // بيانات تجريبية للعرض
-  final List<AddressModel> _addresses = [
-    AddressModel(
+  // Dummy data for preview
+  final _dummyAddresses = [
+    DummyAddress(
       id: '1',
-      userId: 'user1',
-      name: 'المنزل',
-      street: 'شارع الملك فهد',
-      city: 'الرياض',
-      state: 'الرياض',
-      country: 'المملكة العربية السعودية',
-      postalCode: '12345',
-      phone: '0512345678',
+      name: 'Home',
+      recipient: 'John Doe',
+      addressLine1: '123 Main Street',
+      addressLine2: 'Apt 4B',
+      city: 'New York',
+      state: 'NY',
+      postalCode: '10001',
+      country: 'United States',
+      phoneNumber: '+1 (555) 123-4567',
       isDefault: true,
     ),
-    AddressModel(
+    DummyAddress(
       id: '2',
-      userId: 'user1',
-      name: 'العمل',
-      street: 'شارع التحلية',
-      city: 'جدة',
-      state: 'مكة المكرمة',
-      country: 'المملكة العربية السعودية',
-      postalCode: '54321',
-      phone: '0598765432',
+      name: 'Office',
+      recipient: 'John Doe',
+      addressLine1: '456 Business Ave',
+      addressLine2: 'Floor 12',
+      city: 'Boston',
+      state: 'MA',
+      postalCode: '02108',
+      country: 'United States',
+      phoneNumber: '+1 (555) 987-6543',
       isDefault: false,
     ),
   ];
 
-  final List<PaymentMethodModel> _paymentMethods = [
-    PaymentMethodModel(
+  final _dummyPaymentMethods = [
+    DummyPaymentMethod(
       id: '1',
-      userId: 'user1',
-      type: 'card',
-      lastDigits: '4242',
-      cardholderName: 'محمد أحمد',
-      expiryDate: DateTime(2025, 12),
+      type: 'Credit Card',
+      name: 'Visa ending in 1234',
+      icon: Icons.credit_card,
       isDefault: true,
     ),
-    PaymentMethodModel(
+    DummyPaymentMethod(
       id: '2',
-      userId: 'user1',
-      type: 'mada',
-      lastDigits: '1234',
-      cardholderName: 'محمد أحمد',
-      expiryDate: DateTime(2024, 6),
+      type: 'PayPal',
+      name: 'johndoe@example.com',
+      icon: Icons.payment,
       isDefault: false,
     ),
   ];
 
-  // معلومات الطلب
-  final double _subtotal = 650.0;
-  final double _standardShipping = 15.0;
-  final double _expressShipping = 30.0;
-  double _discount = 0.0;
+  final _dummyShippingMethods = [
+    DummyShippingMethod(
+      id: '1',
+      name: 'Standard Shipping',
+      price: 5.99,
+      deliveryTime: '3-5 business days',
+    ),
+    DummyShippingMethod(
+      id: '2',
+      name: 'Express Shipping',
+      price: 12.99,
+      deliveryTime: '1-2 business days',
+    ),
+    DummyShippingMethod(
+      id: '3',
+      name: 'Same Day Delivery',
+      price: 19.99,
+      deliveryTime: 'Today, before 8PM',
+    ),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    // تحديد العنوان وطريقة الدفع الافتراضية
-    _selectedAddress = _addresses.firstWhere(
-      (address) => address.isDefault,
-      orElse: () => _addresses.first,
-    );
+  final _dummyCartItems = [
+    DummyCartItem(
+      id: '1',
+      productId: '1',
+      name: 'Premium Wireless Headphones',
+      price: 129.99,
+      discount: 15.0,
+      quantity: 1,
+      color: 'Black',
+      size: 'M',
+      imageUrl: 'assets/images/products/headphones_1.png',
+    ),
+    DummyCartItem(
+      id: '2',
+      productId: '4',
+      name: 'Bluetooth Speaker',
+      price: 79.99,
+      discount: 0.0,
+      quantity: 2,
+      color: 'Blue',
+      size: 'Standard',
+      imageUrl: 'assets/images/products/speaker.png',
+    ),
+  ];
 
-    _selectedPaymentMethod = _paymentMethods.firstWhere(
-      (method) => method.isDefault,
-      orElse: () => _paymentMethods.first,
-    );
+  double get subtotal => _dummyCartItems.fold(
+        0,
+        (sum, item) => sum + (item.price * (1 - item.discount / 100) * item.quantity),
+      );
+
+  double get tax => subtotal * 0.05; // 5% tax
+
+  double get shipping => _dummyShippingMethods[_selectedShippingMethodIndex].price;
+
+  double get discount => _appliedCoupon != null ? 10.0 : 0.0; // Example discount
+
+  double get total => subtotal + tax + shipping - discount;
+
+  void _nextStep() {
+    if (_currentStep < 3) {
+      setState(() {
+        _currentStep++;
+      });
+    }
+  }
+
+  void _previousStep() {
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep--;
+      });
+    }
+  }
+
+  void _placeOrder() {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isPlacingOrder = true;
+    });
+
+    // Simulate order processing
+    Future.delayed(const Duration(seconds: 2), () {
+      // Show success dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Order Placed Successfully!'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 64,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Your order has been placed and will be processed shortly.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Order Total: \$${total.toStringAsFixed(2)}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Navigate to home and clear the stack
+                AppRouter.replace(context, AppConstants.homeRoute);
+              },
+              child: const Text('Continue Shopping'),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // حساب التكلفة الإجمالية
-    final shippingCost = _shippingMethod == 'standard' ? _standardShipping : _expressShipping;
-    final total = _subtotal + shippingCost - _discount;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('إتمام الشراء'),
+        title: const Text('Checkout'),
       ),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepContinue: () {
-          if (_currentStep < 2) {
-            setState(() {
-              _currentStep += 1;
-            });
-          } else {
-            _placeOrder();
-          }
-        },
-        onStepCancel: () {
-          if (_currentStep > 0) {
-            setState(() {
-              _currentStep -= 1;
-            });
-          }
-        },
-        controlsBuilder: (context, details) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: details.onStepContinue,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+      body: Form(
+        key: _formKey,
+        child: Stepper(
+          currentStep: _currentStep,
+          onStepContinue: _nextStep,
+          onStepCancel: _previousStep,
+          controlsBuilder: (context, details) {
+            return const SizedBox.shrink(); // We'll use our own controls
+          },
+          steps: [
+            // Step 1: Shipping Address
+            Step(
+              title: const Text('Shipping Address'),
+              content: Column(
+                children: [
+                  for (int i = 0; i < _dummyAddresses.length; i++)
+                    AddressCard(
+                      address: _dummyAddresses[i],
+                      isSelected: i == _selectedAddressIndex,
+                      onSelect: () {
+                        setState(() {
+                          _selectedAddressIndex = i;
+                        });
+                      },
+                      onEdit: () {
+                        // Navigate to edit address screen
+                      },
                     ),
-                    child: Text(
-                      _currentStep == 2 ? 'تأكيد الطلب' : 'التالي',
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      // Navigate to add new address screen
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add New Address'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
                     ),
                   ),
-                ),
-                if (_currentStep > 0) ...[
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: details.onStepCancel,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _previousStep,
+                          child: const Text('Back'),
+                        ),
                       ),
-                      child: const Text('رجوع'),
-                    ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: _nextStep,
+                          child: const Text('Continue'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ],
-            ),
-          );
-        },
-        steps: [
-          // الخطوة 1: اختيار عنوان الشحن
-          Step(
-            title: const Text('عنوان الشحن'),
-            content: _buildShippingAddressStep(),
-            isActive: _currentStep >= 0,
-            state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-          ),
-
-          // الخطوة 2: طريقة الشحن
-          Step(
-            title: const Text('طريقة الشحن'),
-            content: _buildShippingMethodStep(),
-            isActive: _currentStep >= 1,
-            state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-          ),
-
-          // الخطوة 3: طريقة الدفع
-          Step(
-            title: const Text('طريقة الدفع'),
-            content: _buildPaymentMethodStep(),
-            isActive: _currentStep >= 2,
-            state: _currentStep > 2 ? StepState.complete : StepState.indexed,
-          ),
-        ],
-      ),
-      bottomSheet: _buildOrderSummary(total, shippingCost),
-    );
-  }
-
-  // خطوة اختيار عنوان الشحن
-  Widget _buildShippingAddressStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // عناوين الشحن
-        ...List.generate(_addresses.length, (index) {
-          final address = _addresses[index];
-          final isSelected = _selectedAddress?.id == address.id;
-
-          return InkWell(
-            onTap: () {
-              setState(() {
-                _selectedAddress = address;
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!,
-                  width: isSelected ? 2 : 1,
-                ),
-                borderRadius: BorderRadius.circular(8),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Radio<String>(
-                      value: address.id,
-                      groupValue: _selectedAddress?.id,
-                      onChanged: (value) {
+              isActive: _currentStep >= 0,
+              state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+            ),
+
+            // Step 2: Shipping Method
+            Step(
+              title: const Text('Shipping Method'),
+              content: Column(
+                children: [
+                  for (int i = 0; i < _dummyShippingMethods.length; i++)
+                    ShippingMethodCard(
+                      shippingMethod: _dummyShippingMethods[i],
+                      isSelected: i == _selectedShippingMethodIndex,
+                      onSelect: () {
                         setState(() {
-                          _selectedAddress = address;
+                          _selectedShippingMethodIndex = i;
                         });
                       },
                     ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                address.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              if (address.isDefault) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'افتراضي',
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(address.street),
-                          Text('${address.city}, ${address.state}, ${address.country}'),
-                          Text('${address.postalCode} | ${address.phone}'),
-                        ],
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _previousStep,
+                          child: const Text('Back'),
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      onPressed: () {
-                        // تعديل العنوان
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: _nextStep,
+                          child: const Text('Continue'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              isActive: _currentStep >= 1,
+              state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+            ),
+
+            // Step 3: Payment Method
+            Step(
+              title: const Text('Payment Method'),
+              content: Column(
+                children: [
+                  for (int i = 0; i < _dummyPaymentMethods.length; i++)
+                    PaymentMethodCard(
+                      paymentMethod: _dummyPaymentMethods[i],
+                      isSelected: i == _selectedPaymentMethodIndex,
+                      onSelect: () {
+                        setState(() {
+                          _selectedPaymentMethodIndex = i;
+                        });
                       },
                     ),
-                  ],
-                ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      // Navigate to add new payment method screen
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add New Payment Method'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _previousStep,
+                          child: const Text('Back'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: _nextStep,
+                          child: const Text('Continue'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+              isActive: _currentStep >= 2,
+              state: _currentStep > 2 ? StepState.complete : StepState.indexed,
             ),
-          );
-        }),
 
-        // إضافة عنوان جديد
-        OutlinedButton.icon(
-          onPressed: () {
-            // إضافة عنوان جديد
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('إضافة عنوان جديد'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // خطوة اختيار طريقة الشحن
-  Widget _buildShippingMethodStep() {
-    return Column(
-      children: [
-        // الشحن القياسي
-        _buildShippingOption(
-          title: 'الشحن القياسي',
-          subtitle: 'توصيل خلال 3-5 أيام عمل',
-          price: _standardShipping,
-          value: 'standard',
-          groupValue: _shippingMethod,
-          onChanged: (value) {
-            setState(() {
-              _shippingMethod = value.toString();
-            });
-          },
-        ),
-
-        const SizedBox(height: 16),
-
-        // الشحن السريع
-        _buildShippingOption(
-          title: 'الشحن السريع',
-          subtitle: 'توصيل خلال 1-2 يوم عمل',
-          price: _expressShipping,
-          value: 'express',
-          groupValue: _shippingMethod,
-          onChanged: (value) {
-            setState(() {
-              _shippingMethod = value.toString();
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  // خيار طريقة الشحن
-  Widget _buildShippingOption({
-    required String title,
-    required String subtitle,
-    required double price,
-    required String value,
-    required String groupValue,
-    required Function(dynamic) onChanged,
-  }) {
-    final isSelected = value == groupValue;
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!,
-          width: isSelected ? 2 : 1,
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Radio<String>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-            ),
-            Expanded(
-              child: Column(
+            // Step 4: Review & Place Order
+            Step(
+              title: const Text('Review & Place Order'),
+              content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
+                  const Text(
+                    'Order Items',
+                    style: TextStyle(
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
                     ),
                   ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              '${price.toStringAsFixed(0)} ر.س',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  // خطوة اختيار طريقة الدفع
-  Widget _buildPaymentMethodStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // طرق الدفع المتاحة
-        ...List.generate(_paymentMethods.length, (index) {
-          final paymentMethod = _paymentMethods[index];
-          final isSelected = _selectedPaymentMethod?.id == paymentMethod.id;
+                  const SizedBox(height: 12),
 
-          return InkWell(
-            onTap: () {
-              setState(() {
-                _selectedPaymentMethod = paymentMethod;
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!,
-                  width: isSelected ? 2 : 1,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: paymentMethod.id,
-                      groupValue: _selectedPaymentMethod?.id,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPaymentMethod = paymentMethod;
-                        });
-                      },
-                    ),
-                    Icon(
-                      paymentMethod.type == 'card' ? Icons.credit_card : Icons.account_balance_wallet,
-                      color: Colors.grey[700],
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  // Display cart items in a summarized way
+                  for (var item in _dummyCartItems)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                paymentMethod.type == 'card' ? 'بطاقة ائتمان' : 'مدى',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              item.imageUrl,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 60,
+                                height: 60,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
                               ),
-                              if (paymentMethod.isDefault) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'افتراضي',
-                                    style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  '${item.color}, ${item.size} | Qty: ${item.quantity}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
                                   ),
                                 ),
                               ],
-                            ],
+                            ),
                           ),
                           Text(
-                            'تنتهي في •••• ${paymentMethod.lastDigits}',
-                            style: TextStyle(color: Colors.grey[600]),
+                            '\$${(item.price * (1 - item.discount / 100) * item.quantity).toStringAsFixed(2)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () {
-                        // حذف طريقة الدفع
-                      },
+
+                  const Divider(),
+
+                  // Shipping Address
+                  const Text(
+                    'Shipping Address',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(_dummyAddresses[_selectedAddressIndex].recipient),
+                  Text(_dummyAddresses[_selectedAddressIndex].addressLine1),
+                  if (_dummyAddresses[_selectedAddressIndex].addressLine2.isNotEmpty)
+                    Text(_dummyAddresses[_selectedAddressIndex].addressLine2),
+                  Text(
+                    '${_dummyAddresses[_selectedAddressIndex].city}, ${_dummyAddresses[_selectedAddressIndex].state} ${_dummyAddresses[_selectedAddressIndex].postalCode}',
+                  ),
+                  Text(_dummyAddresses[_selectedAddressIndex].country),
+                  Text(_dummyAddresses[_selectedAddressIndex].phoneNumber),
+
+                  const SizedBox(height: 16),
+
+                  // Shipping Method
+                  const Text(
+                    'Shipping Method',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(_dummyShippingMethods[_selectedShippingMethodIndex].name),
+                  Text(_dummyShippingMethods[_selectedShippingMethodIndex].deliveryTime),
+
+                  const SizedBox(height: 16),
+
+                  // Payment Method
+                  const Text(
+                    'Payment Method',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(_dummyPaymentMethods[_selectedPaymentMethodIndex].icon),
+                      const SizedBox(width: 8),
+                      Text(_dummyPaymentMethods[_selectedPaymentMethodIndex].name),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Coupon code
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            hintText: 'Enter coupon code',
+                            isDense: true,
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: !_isPlacingOrder && _appliedCoupon == null,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _isPlacingOrder || _appliedCoupon != null
+                            ? null
+                            : () {
+                                setState(() {
+                                  _appliedCoupon = 'WELCOME10';
+                                });
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Coupon applied: WELCOME10'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              },
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+
+                  if (_appliedCoupon != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Coupon $_appliedCoupon applied',
+                            style: const TextStyle(color: Colors.green),
+                          ),
+                          const Spacer(),
+                          TextButton(
+                            onPressed: _isPlacingOrder
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _appliedCoupon = null;
+                                    });
+                                  },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(60, 30),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text('Remove'),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 16),
+
+                  // Order summary
+                  CheckoutSummaryCard(
+                    subtotal: subtotal,
+                    tax: tax,
+                    shipping: shipping,
+                    discount: discount,
+                    total: total,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _isPlacingOrder ? null : _previousStep,
+                          child: const Text('Back'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: _isPlacingOrder ? null : _placeOrder,
+                          child: _isPlacingOrder
+                              ? const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text('Processing...'),
+                                  ],
+                                )
+                              : Text('Place Order - \$${total.toStringAsFixed(2)}'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          );
-        }),
-
-        // إضافة طريقة دفع جديدة
-        OutlinedButton.icon(
-          onPressed: () {
-            // إضافة طريقة دفع جديدة
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('إضافة طريقة دفع جديدة'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // قسم كوبون الخصم
-        TextField(
-          decoration: InputDecoration(
-            hintText: 'أدخل كود الخصم',
-            suffixIcon: TextButton(
-              onPressed: () {
-                // تطبيق الكوبون
-                setState(() {
-                  _discount = 50.0; // قيمة تجريبية
-                });
-              },
-              child: const Text('تطبيق'),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ملخص الطلب
-  Widget _buildOrderSummary(double total, double shippingCost) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // تفاصيل التكلفة
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('المجموع الفرعي:'),
-              Text('${_subtotal.toStringAsFixed(0)} ر.س'),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('الشحن:'),
-              Text('${shippingCost.toStringAsFixed(0)} ر.س'),
-            ],
-          ),
-          if (_discount > 0) ...[
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('الخصم:'),
-                Text(
-                  '- ${_discount.toStringAsFixed(0)} ر.س',
-                  style: const TextStyle(color: Colors.green),
-                ),
-              ],
+              isActive: _currentStep >= 3,
+              state: StepState.indexed,
             ),
           ],
-          const Divider(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'المجموع الكلي:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '${total.toStringAsFixed(0)} ر.س',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // تنفيذ الطلب
-  void _placeOrder() {
-    // التحقق من البيانات المطلوبة
-    if (_selectedAddress == null) {
-      _showErrorSnackBar('يرجى اختيار عنوان للشحن');
-      return;
-    }
-
-    if (_selectedPaymentMethod == null) {
-      _showErrorSnackBar('يرجى اختيار طريقة دفع');
-      return;
-    }
-
-    // إظهار حوار تأكيد الطلب
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تأكيد الطلب'),
-        content: const Text('هل أنت متأكد من رغبتك في إتمام الطلب؟'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // إنشاء الطلب
-              Navigator.pop(context);
-              _showOrderConfirmation();
-            },
-            child: const Text('تأكيد'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // إظهار رسالة خطأ
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
-
-  // إظهار شاشة تأكيد الطلب
-  void _showOrderConfirmation() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const OrderConfirmationScreen(),
+        ),
       ),
     );
   }
 }
 
-// شاشة تأكيد الطلب
-class OrderConfirmationScreen extends StatelessWidget {
-  const OrderConfirmationScreen({Key? key}) : super(key: key);
+// Dummy models for preview
+class DummyAddress {
+  final String id;
+  final String name;
+  final String recipient;
+  final String addressLine1;
+  final String addressLine2;
+  final String city;
+  final String state;
+  final String postalCode;
+  final String country;
+  final String phoneNumber;
+  final bool isDefault;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 100,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'تم تأكيد طلبك بنجاح!',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'رقم الطلب: #123456',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'سيتم إرسال تفاصيل الطلب إلى بريدك الإلكتروني',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                // العودة للصفحة الرئيسية
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
-                ),
-              ),
-              child: const Text('متابعة التسوق'),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                // الانتقال لصفحة الطلبات
-              },
-              child: const Text('عرض الطلبات'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  DummyAddress({
+    required this.id,
+    required this.name,
+    required this.recipient,
+    required this.addressLine1,
+    required this.addressLine2,
+    required this.city,
+    required this.state,
+    required this.postalCode,
+    required this.country,
+    required this.phoneNumber,
+    required this.isDefault,
+  });
+}
+
+class DummyPaymentMethod {
+  final String id;
+  final String type;
+  final String name;
+  final IconData icon;
+  final bool isDefault;
+
+  DummyPaymentMethod({
+    required this.id,
+    required this.type,
+    required this.name,
+    required this.icon,
+    required this.isDefault,
+  });
+}
+
+class DummyShippingMethod {
+  final String id;
+  final String name;
+  final double price;
+  final String deliveryTime;
+
+  DummyShippingMethod({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.deliveryTime,
+  });
+}
+
+class DummyCartItem {
+  final String id;
+  final String productId;
+  final String name;
+  final double price;
+  final double discount;
+  final int quantity;
+  final String color;
+  final String size;
+  final String imageUrl;
+
+  DummyCartItem({
+    required this.id,
+    required this.productId,
+    required this.name,
+    required this.price,
+    required this.discount,
+    required this.quantity,
+    required this.color,
+    required this.size,
+    required this.imageUrl,
+  });
 }

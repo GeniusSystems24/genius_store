@@ -18,6 +18,11 @@ The product screens:
 ## Screens Overview
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 classDiagram
     class ProductScreens {
         +ProductListScreen
@@ -101,24 +106,48 @@ classDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> ProductListScreen
-    ProductListScreen --> ProductFilterScreen: Apply filters
+    [*] --> ProductListScreen: Browses products
+    ProductListScreen --> ProductFilterScreen: Applies filters
     ProductFilterScreen --> ProductListScreen: Filters applied
     
-    ProductListScreen --> ProductSearchScreen: Search products
-    ProductSearchScreen --> ProductListScreen: View search results
+    ProductListScreen --> ProductSearchScreen: Searches products
+    ProductSearchScreen --> ProductListScreen: Views search results
     
-    ProductListScreen --> ProductDetailScreen: Select product
-    ProductDetailScreen --> ProductReviewScreen: View all reviews
-    ProductReviewScreen --> ProductDetailScreen: Back to details
+    ProductListScreen --> ProductDetailScreen: Selects product
+    ProductDetailScreen --> ProductReviewScreen: Views all reviews
+    ProductReviewScreen --> ProductDetailScreen: Returns to details
     
-    ProductDetailScreen --> ProductCompareScreen: Compare with others
-    ProductCompareScreen --> ProductDetailScreen: Back to details
+    ProductDetailScreen --> ProductCompareScreen: Compares with others
+    ProductCompareScreen --> ProductDetailScreen: Returns to details
     
-    ProductDetailScreen --> CartScreen: Add to cart
-    ProductDetailScreen --> WishlistScreen: Add to wishlist
+    ProductDetailScreen --> CartScreen: Adds to cart
+    ProductDetailScreen --> WishlistScreen: Adds to wishlist
     
-    ProductDetailScreen --> [*]
+    ProductDetailScreen --> [*]: Returns to browsing
+    
+    note right of ProductListScreen: Product discovery
+    note right of ProductDetailScreen: Product evaluation
+    note right of ProductReviewScreen: Customer feedback
+    note right of ProductCompareScreen: Decision support
+    
+    state ProductListScreen {
+        [*] --> LoadProducts: Initialize
+        LoadProducts --> DisplayProducts: Data loaded
+        DisplayProducts --> ApplySort: Organizes list
+    }
+    
+    state ProductDetailScreen {
+        [*] --> LoadProductDetails: Fetch data
+        LoadProductDetails --> DisplayDetails: Show information
+        DisplayDetails --> SelectVariant: Choose options
+        SelectVariant --> UpdateQuantity: Set amount
+    }
+    
+    state ProductSearchScreen {
+        [*] --> ShowSearchInput: Ready to search
+        ShowSearchInput --> PerformSearch: Enters query
+        PerformSearch --> DisplayResults: Shows matches
+    }
 ```
 
 ## Key Screens

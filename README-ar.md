@@ -122,33 +122,79 @@ lib/
 ### تدفق التنقل (Navigation Flow)
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
-    A[Splash Screen] --> B{مسجل الدخول؟}
-    B -->|نعم| C[الشاشة الرئيسية]
-    B -->|لا| D[شاشة تسجيل الدخول]
-    D --> C
+    A[Splash Screen] L_A_B_0@--> B{مسجل الدخول؟}
+    B L_B_C_0@-->|نعم: يتم التوثيق| C[الشاشة الرئيسية]
+    B L_B_D_0@-->|لا: يتوجه إلى| D[شاشة تسجيل الدخول]
+    D L_D_C_0@--> |يسجل دخول إلى| C
     
-    C --> E[صفحة القسم]
-    C --> F[صفحة البحث]
-    C --> G[شاشة السلة]
-    C --> H[الملف الشخصي]
+    C L_C_E_0@--> |يتصفح| E[صفحة القسم]
+    C L_C_F_0@--> |يبحث في| F[صفحة البحث]
+    C L_C_G_0@--> |يعرض| G[شاشة السلة]
+    C L_C_H_0@--> |يدير| H[الملف الشخصي]
     
-    E --> I[تفاصيل المنتج]
-    F --> I
+    E L_E_I_0@--> |يختار| I[تفاصيل المنتج]
+    F L_F_I_0@--> |يجد| I
     
-    I --> J{إضافة للسلة}
-    J -->|إنشاء سلة جديدة| K[إنشاء سلة]
-    J -->|إضافة لسلة موجودة| L[اختيار السلة]
+    I L_I_J_0@--> |يختار| J{إضافة للسلة}
+    J L_J_K_0@-->|إنشاء سلة جديدة: يبدأ| K[إنشاء سلة]
+    J L_J_L_0@-->|إضافة لسلة موجودة: يعرض| L[اختيار السلة]
     
-    G --> M[تفاصيل السلة]
-    M --> N[شاشة الدفع]
-    N --> O[تأكيد الطلب]
-    O --> P[شاشة نجاح الطلب]
+    G L_G_M_0@--> |يعرض| M[تفاصيل السلة]
+    M L_M_N_0@--> |ينتقل إلى| N[شاشة الدفع]
+    N L_N_O_0@--> |يؤكد| O[تأكيد الطلب]
+    O L_O_P_0@--> |يكمل إلى| P[شاشة نجاح الطلب]
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#F44336,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 4 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 5 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 6 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 7 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 8 stroke:#FF9800,fill:none,stroke-width:2px
+    linkStyle 9 stroke:#FF9800,fill:none,stroke-width:2px
+    linkStyle 10 stroke:#009688,fill:none,stroke-width:2px
+    linkStyle 11 stroke:#00BCD4,fill:none,stroke-width:2px
+    linkStyle 12 stroke:#00BCD4,fill:none,stroke-width:2px
+    linkStyle 13 stroke:#8BC34A,fill:none,stroke-width:2px
+    linkStyle 14 stroke:#8BC34A,fill:none,stroke-width:2px
+    linkStyle 15 stroke:#8BC34A,fill:none,stroke-width:2px
+    linkStyle 16 stroke:#8BC34A,fill:none,stroke-width:2px
+    
+    L_A_B_0@{ animation: fast }
+    L_B_C_0@{ animation: fast }
+    L_B_D_0@{ animation: fast }
+    L_D_C_0@{ animation: fast }
+    L_C_E_0@{ animation: fast }
+    L_C_F_0@{ animation: fast }
+    L_C_G_0@{ animation: fast }
+    L_C_H_0@{ animation: fast }
+    L_E_I_0@{ animation: fast }
+    L_F_I_0@{ animation: fast }
+    L_I_J_0@{ animation: fast }
+    L_J_K_0@{ animation: fast }
+    L_J_L_0@{ animation: fast }
+    L_G_M_0@{ animation: fast }
+    L_M_N_0@{ animation: fast }
+    L_N_O_0@{ animation: fast }
+    L_O_P_0@{ animation: fast }
 ```
 
 ### سير عملية الشراء (Purchase Process)
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 sequenceDiagram
     المستخدم->>+تفاصيل المنتج: عرض المنتج
     تفاصيل المنتج->>+المستخدم: اختيار اللون والمقاس
@@ -168,6 +214,11 @@ sequenceDiagram
 ## 🗃️ مخطط قاعدة البيانات (Database Schema)
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 erDiagram
     USERS ||--o{ CARTS : has
     USERS ||--o{ ORDERS : places

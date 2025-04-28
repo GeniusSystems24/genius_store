@@ -19,6 +19,11 @@
 ## نظرة عامة على الشاشات
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 classDiagram
     class ProfileScreens {
         +ProfileMainScreen
@@ -129,31 +134,48 @@ classDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> ProfileMainScreen
+    [*] --> ProfileMainScreen: يفتح الملف الشخصي
     
-    ProfileMainScreen --> EditProfileScreen: تعديل الملف الشخصي
-    EditProfileScreen --> ProfileMainScreen: حفظ التغييرات
+    ProfileMainScreen --> EditProfileScreen: ينقر على تعديل الملف الشخصي
+    EditProfileScreen --> ProfileMainScreen: يؤكد التغييرات
     
-    ProfileMainScreen --> OrderHistoryScreen: عرض الطلبات
-    OrderHistoryScreen --> OrderDetailsScreen: اختيار طلب
-    OrderDetailsScreen --> OrderHistoryScreen: العودة إلى الطلبات
+    ProfileMainScreen --> OrderHistoryScreen: يعرض سجل المشتريات
+    OrderHistoryScreen --> OrderDetailsScreen: يختار طلبًا محددًا
+    OrderDetailsScreen --> OrderHistoryScreen: يعود إلى القائمة
     
-    ProfileMainScreen --> AddressBookScreen: إدارة العناوين
-    AddressBookScreen --> AddressFormScreen: إضافة/تعديل عنوان
-    AddressFormScreen --> AddressBookScreen: حفظ العنوان
+    ProfileMainScreen --> AddressBookScreen: يدير مواقع التسليم
+    AddressBookScreen --> AddressFormScreen: يضيف/يعدل العنوان
+    AddressFormScreen --> AddressBookScreen: يحفظ الموقع
     
-    ProfileMainScreen --> PaymentMethodsScreen: إدارة طرق الدفع
-    PaymentMethodsScreen --> PaymentMethodFormScreen: إضافة/تعديل طريقة دفع
-    PaymentMethodFormScreen --> PaymentMethodsScreen: حفظ طريقة الدفع
+    ProfileMainScreen --> PaymentMethodsScreen: يدير خيارات الدفع
+    PaymentMethodsScreen --> PaymentMethodFormScreen: يضيف/يعدل طريقة الدفع
+    PaymentMethodFormScreen --> PaymentMethodsScreen: يحفظ تفاصيل الدفع
     
-    ProfileMainScreen --> NotificationSettingsScreen: تكوين الإشعارات
-    NotificationSettingsScreen --> ProfileMainScreen: حفظ التفضيلات
+    ProfileMainScreen --> NotificationSettingsScreen: يعدل الإشعارات
+    NotificationSettingsScreen --> ProfileMainScreen: يطبق التفضيلات
     
-    ProfileMainScreen --> HelpSupportScreen: الحصول على المساعدة
-    HelpSupportScreen --> FAQDetailScreen: عرض الأسئلة الشائعة
-    HelpSupportScreen --> ContactSupportScreen: الاتصال بالدعم
+    ProfileMainScreen --> HelpSupportScreen: يطلب المساعدة
+    HelpSupportScreen --> FAQDetailScreen: يقرأ إجابة مفصلة
+    HelpSupportScreen --> ContactSupportScreen: يبدأ محادثة الدعم
     
-    ProfileMainScreen --> LoginScreen: تسجيل الخروج
+    ProfileMainScreen --> LoginScreen: يسجل الخروج
+    
+    note right of ProfileMainScreen: مركز الملف الشخصي الرئيسي
+    note right of OrderHistoryScreen: تتبع المشتريات
+    note right of AddressBookScreen: إدارة المواقع
+    note right of PaymentMethodsScreen: تكوين الدفع
+    
+    state ProfileMainScreen {
+        [*] --> LoadUserData: تهيئة
+        LoadUserData --> DisplayUserInfo: تم تحميل البيانات
+        DisplayUserInfo --> MenuOptions: عرض التنقل
+    }
+    
+    state OrderHistoryScreen {
+        [*] --> FetchOrders: تحميل
+        FetchOrders --> DisplayOrderList: عرض الطلبات
+        DisplayOrderList --> FilterOrders: تطبيق الفلاتر
+    }
 ```
 
 ## الشاشات الرئيسية

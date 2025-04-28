@@ -34,6 +34,11 @@ presentation/
 The Presentation layer follows the MVVM pattern with some adaptations for Flutter and Riverpod:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TB
     subgraph Presentation Layer
         View["Screens & Widgets\n(View)"]
@@ -45,10 +50,20 @@ flowchart TB
         Entities["Entities"]
     end
     
-    View <--> ViewModel
-    ViewModel <--> UseCase
-    UseCase --> Entities
-    View --> Entities
+    View L_View_ViewModel_0@<--> |Observes & Updates| ViewModel
+    ViewModel L_ViewModel_UseCase_0@<--> |Invokes & Receives| UseCase
+    UseCase L_UseCase_Entities_0@--> |Manipulates| Entities
+    View L_View_Entities_0@--> |Renders| Entities
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#4CAF50,fill:none,stroke-width:2px
+    
+    L_View_ViewModel_0@{ animation: fast }
+    L_ViewModel_UseCase_0@{ animation: fast } 
+    L_UseCase_Entities_0@{ animation: fast } 
+    L_View_Entities_0@{ animation: fast }
 ```
 
 ### Components
@@ -80,11 +95,26 @@ The application uses Riverpod for state management due to its advantages:
 ### Provider Structure
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
-    FP["Future/Stream Providers\n(Async data loading)"] --> SP["State Notifier Providers\n(Mutable state)"]
-    SP --> P["Regular Providers\n(Read-only state)"]
-    P --> UI["UI Components"]
-    FP --> UI
+    FP["Future/Stream Providers\n(Async data loading)"] L_FP_SP_0@--> |Feeds data to| SP["State Notifier Providers\n(Mutable state)"]
+    SP L_SP_P_0@--> |Provides state to| P["Regular Providers\n(Read-only state)"]
+    P L_P_UI_0@--> |Updates| UI["UI Components"]
+    FP L_FP_UI_0@--> |Directly updates| UI
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#FFA000,fill:none,stroke-width:2px
+    
+    L_FP_SP_0@{ animation: fast }
+    L_SP_P_0@{ animation: fast } 
+    L_P_UI_0@{ animation: fast } 
+    L_FP_UI_0@{ animation: fast }
 ```
 
 ### Provider Types

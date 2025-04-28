@@ -19,6 +19,11 @@ The profile screens enable users to:
 ## Screens Overview
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 classDiagram
     class ProfileScreens {
         +ProfileMainScreen
@@ -129,31 +134,48 @@ classDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> ProfileMainScreen
+    [*] --> ProfileMainScreen: Opens profile
     
-    ProfileMainScreen --> EditProfileScreen: Edit profile
-    EditProfileScreen --> ProfileMainScreen: Save changes
+    ProfileMainScreen --> EditProfileScreen: Taps edit profile
+    EditProfileScreen --> ProfileMainScreen: Confirms changes
     
-    ProfileMainScreen --> OrderHistoryScreen: View orders
-    OrderHistoryScreen --> OrderDetailsScreen: Select order
-    OrderDetailsScreen --> OrderHistoryScreen: Back to orders
+    ProfileMainScreen --> OrderHistoryScreen: Views purchase history
+    OrderHistoryScreen --> OrderDetailsScreen: Selects specific order
+    OrderDetailsScreen --> OrderHistoryScreen: Returns to list
     
-    ProfileMainScreen --> AddressBookScreen: Manage addresses
-    AddressBookScreen --> AddressFormScreen: Add/Edit address
-    AddressFormScreen --> AddressBookScreen: Save address
+    ProfileMainScreen --> AddressBookScreen: Manages delivery locations
+    AddressBookScreen --> AddressFormScreen: Adds/Modifies address
+    AddressFormScreen --> AddressBookScreen: Saves location
     
-    ProfileMainScreen --> PaymentMethodsScreen: Manage payment methods
-    PaymentMethodsScreen --> PaymentMethodFormScreen: Add/Edit payment method
-    PaymentMethodFormScreen --> PaymentMethodsScreen: Save payment method
+    ProfileMainScreen --> PaymentMethodsScreen: Manages payment options
+    PaymentMethodsScreen --> PaymentMethodFormScreen: Adds/Edits payment method
+    PaymentMethodFormScreen --> PaymentMethodsScreen: Saves payment details
     
-    ProfileMainScreen --> NotificationSettingsScreen: Configure notifications
-    NotificationSettingsScreen --> ProfileMainScreen: Save preferences
+    ProfileMainScreen --> NotificationSettingsScreen: Adjusts notifications
+    NotificationSettingsScreen --> ProfileMainScreen: Applies preferences
     
-    ProfileMainScreen --> HelpSupportScreen: Get help
-    HelpSupportScreen --> FAQDetailScreen: View FAQ
-    HelpSupportScreen --> ContactSupportScreen: Contact support
+    ProfileMainScreen --> HelpSupportScreen: Seeks assistance
+    HelpSupportScreen --> FAQDetailScreen: Reads detailed answer
+    HelpSupportScreen --> ContactSupportScreen: Initiates support chat
     
-    ProfileMainScreen --> LoginScreen: Sign out
+    ProfileMainScreen --> LoginScreen: Logs out
+    
+    note right of ProfileMainScreen: Central profile hub
+    note right of OrderHistoryScreen: Purchase tracking
+    note right of AddressBookScreen: Location management
+    note right of PaymentMethodsScreen: Payment configuration
+    
+    state ProfileMainScreen {
+        [*] --> LoadUserData: Initialize
+        LoadUserData --> DisplayUserInfo: Data loaded
+        DisplayUserInfo --> MenuOptions: Show navigation
+    }
+    
+    state OrderHistoryScreen {
+        [*] --> FetchOrders: Load
+        FetchOrders --> DisplayOrderList: Show orders
+        DisplayOrderList --> FilterOrders: Apply filters
+    }
 ```
 
 ## Key Screens

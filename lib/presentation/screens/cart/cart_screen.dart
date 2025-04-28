@@ -1,525 +1,318 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/core.dart';
+import 'components/cart_item_card.dart';
+import 'components/cart_summary_card.dart';
 
-class CartScreen extends ConsumerWidget {
-  const CartScreen({Key? key}) : super(key: key);
+class CartScreen extends ConsumerStatefulWidget {
+  const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // هنا يمكن استخدام مزود سلة التسوق لجلب البيانات
-    // final cartState = ref.watch(cartProvider);
+  ConsumerState<CartScreen> createState() => _CartScreenState();
+}
 
-    // لأغراض العرض، سنستخدم بيانات تجريبية
-    final List<CartItemModel> items = [
-      CartItemModel(
-        id: '1',
-        productId: '1',
-        name: 'قميص رجالي كاجوال',
-        price: 150.0,
-        quantity: 1,
-        imageUrl: 'https://example.com/product1.jpg',
-        color: 'أسود',
-        size: 'M',
-      ),
-      CartItemModel(
-        id: '2',
-        productId: '2',
-        name: 'بنطلون جينز أزرق',
-        price: 200.0,
-        quantity: 2,
-        imageUrl: 'https://example.com/product2.jpg',
-        color: 'أزرق',
-        size: 'L',
-      ),
-      CartItemModel(
-        id: '3',
-        productId: '3',
-        name: 'حذاء رياضي',
-        price: 300.0,
-        quantity: 1,
-        imageUrl: 'https://example.com/product3.jpg',
-        color: 'أبيض',
-        size: '43',
-      ),
-    ];
+class _CartScreenState extends ConsumerState<CartScreen> {
+  // Dummy data for preview
+  final _dummyCartItems = [
+    DummyCartItem(
+      id: '1',
+      productId: '1',
+      name: 'Premium Wireless Headphones',
+      price: 129.99,
+      discount: 15.0,
+      quantity: 1,
+      color: 'Black',
+      size: 'M',
+      imageUrl: 'assets/images/products/headphones_1.png',
+    ),
+    DummyCartItem(
+      id: '2',
+      productId: '4',
+      name: 'Bluetooth Speaker',
+      price: 79.99,
+      discount: 0.0,
+      quantity: 2,
+      color: 'Blue',
+      size: 'Standard',
+      imageUrl: 'assets/images/products/speaker.png',
+    ),
+    DummyCartItem(
+      id: '3',
+      productId: '9',
+      name: 'Fitness Tracker',
+      price: 89.99,
+      discount: 5.0,
+      quantity: 1,
+      color: 'Red',
+      size: 'S',
+      imageUrl: 'assets/images/products/tracker.png',
+    ),
+  ];
 
-    // حساب المجموع
-    final double subtotal = items.fold(0, (sum, item) => sum + (item.price * item.quantity));
-    const double shipping = 15.0;
-    final double total = subtotal + shipping;
+  List<DummyCartItem> _cartItems = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _cartItems = List.from(_dummyCartItems);
+  }
+
+  void _updateItemQuantity(String itemId, int newQuantity) {
+    if (newQuantity <= 0) {
+      _removeItem(itemId);
+      return;
+    }
+
+    setState(() {
+      final itemIndex = _cartItems.indexWhere((item) => item.id == itemId);
+      if (itemIndex != -1) {
+        _cartItems[itemIndex] = _cartItems[itemIndex].copyWith(quantity: newQuantity);
+      }
+    });
+  }
+
+  void _removeItem(String itemId) {
+    setState(() {
+      _cartItems.removeWhere((item) => item.id == itemId);
+    });
+  }
+
+  double get _subtotal => _cartItems.fold(
+        0,
+        (sum, item) => sum + (item.price * (1 - item.discount / 100) * item.quantity),
+      );
+
+  double get _tax => _subtotal * 0.05; // 5% tax
+
+  double get _shippingFee => _subtotal > 100 ? 0 : 10; // Free shipping over $100
+
+  double get _total => _subtotal + _tax + _shippingFee;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('سلة التسوق'),
+        title: Text(
+          'My Cart (${_cartItems.length})',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
-          // زر إنشاء سلة جديدة
-          IconButton(
-            icon: const Icon(Icons.add_shopping_cart),
-            onPressed: () {
-              _showCreateCartDialog(context);
-            },
-          ),
+          if (_cartItems.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Clear Cart'),
+                    content: const Text('Are you sure you want to remove all items from your cart?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _cartItems.clear();
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Clear'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
       ),
-      body: items.isEmpty ? _buildEmptyCart(context) : _buildCartContent(context, items, subtotal, shipping, total),
-      bottomNavigationBar: items.isEmpty ? null : _buildCheckoutButton(context, total),
+      body: _cartItems.isEmpty ? _buildEmptyCart() : _buildCartContent(),
+      bottomNavigationBar: _cartItems.isEmpty ? null : _buildCheckoutBar(),
     );
   }
 
-  // عرض السلة الفارغة
-  Widget _buildEmptyCart(BuildContext context) {
+  Widget _buildEmptyCart() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.shopping_cart_outlined,
             size: 80,
-            color: Colors.grey,
+            color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Text(
-            'سلة التسوق فارغة',
-            style: Theme.of(context).textTheme.headlineSmall,
+          const Text(
+            'Your cart is empty',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'استكشف المتجر وأضف منتجات إلى سلتك',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
+          const Text(
+            'Looks like you haven\'t added anything to your cart yet',
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              // التنقل إلى الصفحة الرئيسية
+              // Navigate to home screen
+              AppRouter.go(context, AppConstants.homeRoute);
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
-            child: const Text('تصفح المنتجات'),
+            child: const Text('Continue Shopping'),
           ),
         ],
       ),
     );
   }
 
-  // عرض محتوى السلة
-  Widget _buildCartContent(
-    BuildContext context,
-    List<CartItemModel> items,
-    double subtotal,
-    double shipping,
-    double total,
-  ) {
+  Widget _buildCartContent() {
     return Column(
       children: [
-        // عنوان السلة
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'السلة الافتراضية',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              // زر تغيير السلة
-              TextButton.icon(
-                onPressed: () {
-                  _showSelectCartDialog(context);
-                },
-                icon: const Icon(Icons.swap_horiz),
-                label: const Text('تغيير السلة'),
-              ),
-            ],
-          ),
-        ),
-
-        // قائمة المنتجات
+        // Cart items list
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: items.length,
+            padding: const EdgeInsets.all(16),
+            itemCount: _cartItems.length,
             itemBuilder: (context, index) {
-              final item = items[index];
-              return _buildCartItem(context, item);
+              final item = _cartItems[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: CartItemCard(
+                  item: item,
+                  onQuantityChanged: (newQuantity) {
+                    _updateItemQuantity(item.id, newQuantity);
+                  },
+                  onRemove: () {
+                    _removeItem(item.id);
+                  },
+                ),
+              );
             },
           ),
         ),
 
-        // ملخص السلة
-        _buildCartSummary(context, subtotal, shipping, total),
-      ],
-    );
-  }
-
-  // عنصر في السلة
-  Widget _buildCartItem(BuildContext context, CartItemModel item) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // صورة المنتج
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                item.imageUrl,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey[300],
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // تفاصيل المنتج
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${item.color} - ${item.size}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // السعر والكمية
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${item.price.toStringAsFixed(0)} ر.س',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          _buildQuantityButton(
-                            icon: Icons.remove,
-                            onPressed: () {
-                              // تقليل الكمية
-                            },
-                          ),
-                          Container(
-                            width: 40,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                            ),
-                            child: Center(
-                              child: Text(
-                                item.quantity.toString(),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          _buildQuantityButton(
-                            icon: Icons.add,
-                            onPressed: () {
-                              // زيادة الكمية
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // زر الحذف
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
-              onPressed: () {
-                // حذف المنتج من السلة
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // زر تغيير الكمية
-  Widget _buildQuantityButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return InkWell(
-      onTap: onPressed,
-      child: Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          color: Colors.grey[100],
-        ),
-        child: Icon(icon, size: 16),
-      ),
-    );
-  }
-
-  // ملخص السلة
-  Widget _buildCartSummary(
-    BuildContext context,
-    double subtotal,
-    double shipping,
-    double total,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // كوبون الخصم
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'أدخل كود الخصم',
-              suffixIcon: TextButton(
-                onPressed: () {
-                  // تطبيق الكوبون
-                },
-                child: const Text('تطبيق'),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // المجموع الفرعي
-          _buildSummaryRow(
-            label: 'المجموع الفرعي',
-            value: '${subtotal.toStringAsFixed(0)} ر.س',
-          ),
-          const SizedBox(height: 8),
-
-          // رسوم الشحن
-          _buildSummaryRow(
-            label: 'رسوم الشحن',
-            value: '${shipping.toStringAsFixed(0)} ر.س',
-          ),
-          const Divider(height: 24),
-
-          // المجموع الكلي
-          _buildSummaryRow(
-            label: 'المجموع الكلي',
-            value: '${total.toStringAsFixed(0)} ر.س',
-            isBold: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // صف في ملخص السلة
-  Widget _buildSummaryRow({
-    required String label,
-    required String value,
-    bool isBold = false,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: isBold ? 18 : 16,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: isBold ? 18 : 16,
-          ),
+        // Order summary
+        CartSummaryCard(
+          subtotal: _subtotal,
+          tax: _tax,
+          shippingFee: _shippingFee,
+          total: _total,
         ),
       ],
     );
   }
 
-  // زر إكمال الشراء
-  Widget _buildCheckoutButton(BuildContext context, double total) {
+  Widget _buildCheckoutBar() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
-      child: ElevatedButton(
-        onPressed: () {
-          // الانتقال لشاشة إتمام الشراء
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: Text(
-          'إتمام الشراء (${total.toStringAsFixed(0)} ر.س)',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
+      child: SafeArea(
+        child: Row(
+          children: [
+            // Total
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Total',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  '\$${_total.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
 
-  // حوار إنشاء سلة جديدة
-  void _showCreateCartDialog(BuildContext context) {
-    final textController = TextEditingController();
+            const SizedBox(width: 16),
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إنشاء سلة جديدة'),
-        content: TextField(
-          controller: textController,
-          decoration: const InputDecoration(
-            hintText: 'اسم السلة',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('إلغاء'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = textController.text.trim();
-              if (name.isNotEmpty) {
-                // إنشاء سلة جديدة
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('إنشاء'),
-          ),
-        ],
-      ),
-    ).then((_) {
-      textController.dispose();
-    });
-  }
-
-  // حوار اختيار سلة
-  void _showSelectCartDialog(BuildContext context) {
-    // قائمة السلال المتاحة
-    final List<String> carts = [
-      'السلة الافتراضية',
-      'سلة المنتجات المفضلة',
-      'سلة الهدايا',
-    ];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('اختر سلة'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: carts.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(carts[index]),
-                onTap: () {
-                  // تحديد السلة
-                  Navigator.pop(context);
+            // Checkout button
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to checkout
+                  AppRouter.go(context, AppConstants.checkoutRoute);
                 },
-              );
-            },
-          ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('Proceed to Checkout'),
+              ),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('إلغاء'),
-          ),
-        ],
       ),
     );
   }
 }
 
-// نموذج عنصر السلة
-class CartItemModel {
+// Dummy model for preview only
+class DummyCartItem {
   final String id;
   final String productId;
   final String name;
   final double price;
+  final double discount;
   final int quantity;
-  final String imageUrl;
   final String color;
   final String size;
+  final String imageUrl;
 
-  CartItemModel({
+  DummyCartItem({
     required this.id,
     required this.productId,
     required this.name,
     required this.price,
+    required this.discount,
     required this.quantity,
-    required this.imageUrl,
     required this.color,
     required this.size,
+    required this.imageUrl,
   });
+
+  DummyCartItem copyWith({
+    String? id,
+    String? productId,
+    String? name,
+    double? price,
+    double? discount,
+    int? quantity,
+    String? color,
+    String? size,
+    String? imageUrl,
+  }) {
+    return DummyCartItem(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      discount: discount ?? this.discount,
+      quantity: quantity ?? this.quantity,
+      color: color ?? this.color,
+      size: size ?? this.size,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
 }

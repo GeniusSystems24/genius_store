@@ -29,6 +29,11 @@ domain/
 تتبع طبقة المجال نمط العمارة النظيفة (Clean Architecture) وتنفذ نمط حالة الاستخدام:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
     subgraph Presentation Layer
         UI[مكونات واجهة المستخدم]
@@ -46,13 +51,30 @@ flowchart TD
         DataSources[مصادر البيانات]
     end
     
-    UI --> ViewModel
-    ViewModel --> UseCases
-    UseCases --> Entities
-    UseCases --> Repositories
-    Repositories --> Entities
-    RepoImpls --> Repositories
-    RepoImpls --> DataSources
+    UI L_UI_ViewModel_0@--> |يتفاعل مع| ViewModel
+    ViewModel L_ViewModel_UseCases_0@--> |ينفذ| UseCases
+    UseCases L_UseCases_Entities_0@--> |يعالج| Entities
+    UseCases L_UseCases_Repositories_0@--> |يصل من خلال| Repositories
+    Repositories L_Repositories_Entities_0@--> |يعمل مع| Entities
+    RepoImpls L_RepoImpls_Repositories_0@--> |ينفذ| Repositories
+    RepoImpls L_RepoImpls_DataSources_0@--> |يستخدم| DataSources
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#FF5722,fill:none,stroke-width:2px
+    linkStyle 4 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 5 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 6 stroke:#009688,fill:none,stroke-width:2px
+    
+    L_UI_ViewModel_0@{ animation: fast }
+    L_ViewModel_UseCases_0@{ animation: fast } 
+    L_UseCases_Entities_0@{ animation: fast } 
+    L_UseCases_Repositories_0@{ animation: fast }
+    L_Repositories_Entities_0@{ animation: fast }
+    L_RepoImpls_Repositories_0@{ animation: fast }
+    L_RepoImpls_DataSources_0@{ animation: fast }
+    
 ```
 
 ## المكونات الرئيسية

@@ -29,6 +29,11 @@ domain/
 The Domain layer follows the Clean Architecture pattern and implements the Use Case pattern:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
     subgraph Presentation Layer
         UI[UI Components]
@@ -46,13 +51,30 @@ flowchart TD
         DataSources[Data Sources]
     end
     
-    UI --> ViewModel
-    ViewModel --> UseCases
-    UseCases --> Entities
-    UseCases --> Repositories
-    Repositories --> Entities
-    RepoImpls --> Repositories
-    RepoImpls --> DataSources
+    UI L_UI_ViewModel_0@--> |Interacts with| ViewModel
+    ViewModel L_ViewModel_UseCases_0@--> |Executes| UseCases
+    UseCases L_UseCases_Entities_0@--> |Manipulates| Entities
+    UseCases L_UseCases_Repositories_0@--> |Accesses through| Repositories
+    Repositories L_Repositories_Entities_0@--> |Works with| Entities
+    RepoImpls L_RepoImpls_Repositories_0@--> |Implements| Repositories
+    RepoImpls L_RepoImpls_DataSources_0@--> |Uses| DataSources
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#FF5722,fill:none,stroke-width:2px
+    linkStyle 4 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 5 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 6 stroke:#009688,fill:none,stroke-width:2px
+    
+    L_UI_ViewModel_0@{ animation: fast }
+    L_ViewModel_UseCases_0@{ animation: fast } 
+    L_UseCases_Entities_0@{ animation: fast } 
+    L_UseCases_Repositories_0@{ animation: fast }
+    L_Repositories_Entities_0@{ animation: fast }
+    L_RepoImpls_Repositories_0@{ animation: fast }
+    L_RepoImpls_DataSources_0@{ animation: fast }
+    
 ```
 
 ## Key Components

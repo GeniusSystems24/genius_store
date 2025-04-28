@@ -19,6 +19,11 @@ The settings screens enable users to:
 ## Screens Overview
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 classDiagram
     class SettingsScreens {
         +SettingsMainScreen
@@ -125,29 +130,128 @@ classDiagram
 ## User Flow
 
 ```mermaid
+
 stateDiagram-v2
-    [*] --> SettingsMainScreen
+    [*] --> SettingsMainScreen: Opens settings
     
-    SettingsMainScreen --> ThemeSettingsScreen: Adjust theme
-    ThemeSettingsScreen --> SettingsMainScreen: Apply theme
+    SettingsMainScreen --> ThemeSettingsScreen: Adjusts appearance
+    ThemeSettingsScreen --> SettingsMainScreen: Applies theme changes
     
-    SettingsMainScreen --> LanguageSettingsScreen: Change language
-    LanguageSettingsScreen --> SettingsMainScreen: Select language
+    SettingsMainScreen --> LanguageSettingsScreen: Changes language
+    LanguageSettingsScreen --> SettingsMainScreen: Selects language
     
-    SettingsMainScreen --> PrivacySecurityScreen: Manage privacy
-    PrivacySecurityScreen --> SettingsMainScreen: Update settings
+    SettingsMainScreen --> PrivacySecurityScreen: Manages privacy
+    PrivacySecurityScreen --> SettingsMainScreen: Updates security settings
     
-    SettingsMainScreen --> AccessibilitySettingsScreen: Configure accessibility
-    AccessibilitySettingsScreen --> SettingsMainScreen: Apply settings
+    SettingsMainScreen --> AccessibilitySettingsScreen: Configures accessibility
+    AccessibilitySettingsScreen --> SettingsMainScreen: Applies accessibility options
     
-    SettingsMainScreen --> DataUsageScreen: Manage data usage
-    DataUsageScreen --> SettingsMainScreen: Save preferences
+    SettingsMainScreen --> DataUsageScreen: Manages data usage
+    DataUsageScreen --> SettingsMainScreen: Saves data preferences
     
-    SettingsMainScreen --> AboutAppScreen: View info
-    AboutAppScreen --> LicensesScreen: View licenses
-    AboutAppScreen --> PrivacyPolicyScreen: Read privacy policy
-    AboutAppScreen --> TermsOfServiceScreen: Read terms
-    AboutAppScreen --> SettingsMainScreen: Back to settings
+    SettingsMainScreen --> AboutAppScreen: Views app information
+    AboutAppScreen --> LicensesScreen: Explores licenses
+    AboutAppScreen --> PrivacyPolicyScreen: Reads privacy policy
+    AboutAppScreen --> TermsOfServiceScreen: Reviews terms
+    AboutAppScreen --> SettingsMainScreen: Returns to settings
+    
+    note right of SettingsMainScreen: Central settings hub
+    note right of ThemeSettingsScreen: Visual customization
+    note right of PrivacySecurityScreen: Security controls
+    note right of DataUsageScreen: Resource management
+    
+    state SettingsMainScreen {
+        [*] --> LoadSettings: Initialize
+        LoadSettings --> DisplayOptions: Settings loaded
+        DisplayOptions --> HandleSelection: User selects option
+    }
+    
+    state ThemeSettingsScreen {
+        [*] --> LoadThemeData: Get current theme
+        LoadThemeData --> ShowThemeOptions: Display choices
+        ShowThemeOptions --> ApplyChanges: User selects theme
+    }
+    
+    state PrivacySecurityScreen {
+        [*] --> LoadPrivacySettings: Fetch settings
+        LoadPrivacySettings --> ShowPrivacyOptions: Display toggles
+        ShowPrivacyOptions --> UpdatePrivacy: User changes setting
+    }
+```
+
+## Screen Flow Diagrams
+
+### Settings Navigation Flow
+
+```mermaid
+
+stateDiagram-v2
+    HomeScreen --> SettingsMainScreen: Taps settings icon
+    ProfileScreen --> SettingsMainScreen: Accesses settings
+    
+    SettingsMainScreen --> ThemeSettingsScreen: Chooses appearance
+    SettingsMainScreen --> LanguageSettingsScreen: Selects language
+    SettingsMainScreen --> PrivacySecurityScreen: Manages privacy
+    SettingsMainScreen --> AccessibilitySettingsScreen: Adjusts accessibility
+    SettingsMainScreen --> DataUsageScreen: Controls data usage
+    SettingsMainScreen --> AboutAppScreen: Views app info
+    
+    ThemeSettingsScreen --> ColorPickerScreen: Selects custom color
+    LanguageSettingsScreen --> DownloadLanguageScreen: Gets new language
+    PrivacySecurityScreen --> BiometricSetupScreen: Enables biometrics
+    PrivacySecurityScreen --> DataDeletionScreen: Clears personal data
+    
+    AboutAppScreen --> UpdateScreen: Checks for updates
+    AboutAppScreen --> LegalInformationScreen: Views legal docs
+    
+    note right of SettingsMainScreen: Central configuration hub
+    note right of ThemeSettingsScreen: Visual preferences
+    note right of PrivacySecurityScreen: Data protection
+    
+    state SettingsMainScreen {
+        [*] --> LoadSettings
+        LoadSettings --> DisplayCategories
+    }
+    
+    state PrivacySecurityScreen {
+        [*] --> LoadSecurityOptions
+        LoadSecurityOptions --> DisplayToggles
+    }
+```
+
+### Appearance Customization Flow
+
+```mermaid
+
+stateDiagram-v2
+    SettingsMainScreen --> ThemeSettingsScreen: Selects appearance
+    
+    ThemeSettingsScreen --> LightThemeScreen: Chooses light theme
+    ThemeSettingsScreen --> DarkThemeScreen: Chooses dark theme
+    ThemeSettingsScreen --> SystemThemeScreen: Uses system setting
+    
+    LightThemeScreen --> ColorPickerScreen: Customizes accent color
+    DarkThemeScreen --> ColorPickerScreen: Customizes accent color
+    
+    ColorPickerScreen --> FontSettingsScreen: Adjusts typography
+    FontSettingsScreen --> ThemeSettingsScreen: Completes customization
+    
+    ThemeSettingsScreen --> SettingsMainScreen: Applies changes
+    
+    note right of ThemeSettingsScreen: Visual configuration
+    note right of ColorPickerScreen: Color customization
+    note right of FontSettingsScreen: Text appearance
+    
+    state ThemeSettingsScreen {
+        [*] --> LoadCurrentTheme
+        LoadCurrentTheme --> DisplayThemeOptions
+        DisplayThemeOptions --> PreviewChanges: User selects option
+    }
+    
+    state ColorPickerScreen {
+        [*] --> ShowColorPalette
+        ShowColorPalette --> ApplySelectedColor
+    }
 ```
 
 ## Key Screens

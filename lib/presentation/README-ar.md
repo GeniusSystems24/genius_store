@@ -34,6 +34,11 @@ presentation/
 تتبع طبقة العرض نمط MVVM مع بعض التعديلات لـ Flutter و Riverpod:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TB
     subgraph Presentation Layer
         View["الشاشات والأدوات\n(العرض)"]
@@ -45,10 +50,20 @@ flowchart TB
         Entities["الكيانات"]
     end
     
-    View <--> ViewModel
-    ViewModel <--> UseCase
-    UseCase --> Entities
-    View --> Entities
+    View L_View_ViewModel_0@<--> |يراقب ويحدث| ViewModel
+    ViewModel L_ViewModel_UseCase_0@<--> |يستدعي ويستقبل| UseCase
+    UseCase L_UseCase_Entities_0@--> |يعالج| Entities
+    View L_View_Entities_0@--> |يعرض| Entities
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#4CAF50,fill:none,stroke-width:2px
+    
+    L_View_ViewModel_0@{ animation: fast }
+    L_ViewModel_UseCase_0@{ animation: fast } 
+    L_UseCase_Entities_0@{ animation: fast } 
+    L_View_Entities_0@{ animation: fast }
 ```
 
 ### المكونات
@@ -80,11 +95,26 @@ flowchart TB
 ### هيكل Provider
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
-    FP["Future/Stream Providers\n(تحميل البيانات غير المتزامن)"] --> SP["State Notifier Providers\n(الحالة المتغيرة)"]
-    SP --> P["Regular Providers\n(الحالة للقراءة فقط)"]
-    P --> UI["مكونات واجهة المستخدم"]
-    FP --> UI
+    FP["Future/Stream Providers\n(تحميل البيانات غير المتزامن)"] L_FP_SP_0@--> |يغذي البيانات إلى| SP["State Notifier Providers\n(الحالة المتغيرة)"]
+    SP L_SP_P_0@--> |يوفر الحالة لـ| P["Regular Providers\n(الحالة للقراءة فقط)"]
+    P L_P_UI_0@--> |يحدث| UI["مكونات واجهة المستخدم"]
+    FP L_FP_UI_0@--> |يحدث مباشرة| UI
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#FFA000,fill:none,stroke-width:2px
+    
+    L_FP_SP_0@{ animation: fast }
+    L_SP_P_0@{ animation: fast } 
+    L_P_UI_0@{ animation: fast } 
+    L_FP_UI_0@{ animation: fast }
 ```
 
 ### أنواع Provider

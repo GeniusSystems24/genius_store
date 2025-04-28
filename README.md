@@ -122,33 +122,79 @@ lib/
 ### Navigation Flow
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
-    A[Splash Screen] --> B{Logged in?}
-    B -->|Yes| C[Home Screen]
-    B -->|No| D[Login Screen]
-    D --> C
+    A[Splash Screen] L_A_B_0@--> B{Logged in?}
+    B L_B_C_0@-->|Yes: Authenticates| C[Home Screen]
+    B L_B_D_0@-->|No: Redirects to| D[Login Screen]
+    D L_D_C_0@--> |Authenticates to| C
     
-    C --> E[Category Page]
-    C --> F[Search Page]
-    C --> G[Cart Screen]
-    C --> H[Profile]
+    C L_C_E_0@--> |Browses| E[Category Page]
+    C L_C_F_0@--> |Searches in| F[Search Page]
+    C L_C_G_0@--> |Views| G[Cart Screen]
+    C L_C_H_0@--> |Manages| H[Profile]
     
-    E --> I[Product Details]
-    F --> I
+    E L_E_I_0@--> |Selects| I[Product Details]
+    F L_F_I_0@--> |Finds| I
     
-    I --> J{Add to Cart}
-    J -->|Create new cart| K[Create Cart]
-    J -->|Add to existing cart| L[Select Cart]
+    I L_I_J_0@--> |Chooses| J{Add to Cart}
+    J L_J_K_0@-->|Create new cart: Initiates| K[Create Cart]
+    J L_J_L_0@-->|Add to existing cart: Shows| L[Select Cart]
     
-    G --> M[Cart Details]
-    M --> N[Checkout Screen]
-    N --> O[Order Confirmation]
-    O --> P[Order Success Screen]
+    G L_G_M_0@--> |Views| M[Cart Details]
+    M L_M_N_0@--> |Proceeds to| N[Checkout Screen]
+    N L_N_O_0@--> |Confirms| O[Order Confirmation]
+    O L_O_P_0@--> |Completes to| P[Order Success Screen]
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#F44336,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 4 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 5 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 6 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 7 stroke:#7E57C2,fill:none,stroke-width:2px
+    linkStyle 8 stroke:#FF9800,fill:none,stroke-width:2px
+    linkStyle 9 stroke:#FF9800,fill:none,stroke-width:2px
+    linkStyle 10 stroke:#009688,fill:none,stroke-width:2px
+    linkStyle 11 stroke:#00BCD4,fill:none,stroke-width:2px
+    linkStyle 12 stroke:#00BCD4,fill:none,stroke-width:2px
+    linkStyle 13 stroke:#8BC34A,fill:none,stroke-width:2px
+    linkStyle 14 stroke:#8BC34A,fill:none,stroke-width:2px
+    linkStyle 15 stroke:#8BC34A,fill:none,stroke-width:2px
+    linkStyle 16 stroke:#8BC34A,fill:none,stroke-width:2px
+    
+    L_A_B_0@{ animation: fast }
+    L_B_C_0@{ animation: fast }
+    L_B_D_0@{ animation: fast }
+    L_D_C_0@{ animation: fast }
+    L_C_E_0@{ animation: fast }
+    L_C_F_0@{ animation: fast }
+    L_C_G_0@{ animation: fast }
+    L_C_H_0@{ animation: fast }
+    L_E_I_0@{ animation: fast }
+    L_F_I_0@{ animation: fast }
+    L_I_J_0@{ animation: fast }
+    L_J_K_0@{ animation: fast }
+    L_J_L_0@{ animation: fast }
+    L_G_M_0@{ animation: fast }
+    L_M_N_0@{ animation: fast }
+    L_N_O_0@{ animation: fast }
+    L_O_P_0@{ animation: fast }
 ```
 
 ### Purchase Process
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 sequenceDiagram
     User->>+Product Details: View Product
     Product Details->>+User: Select Color and Size
@@ -168,6 +214,11 @@ sequenceDiagram
 ## 🗃️ Database Schema
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 erDiagram
     USERS ||--o{ CARTS : has
     USERS ||--o{ ORDERS : places

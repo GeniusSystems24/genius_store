@@ -131,7 +131,7 @@ Navigation is performed through the router:
 
 ```dart
 // Navigate to a named route
-AppRouter.navigateTo(context, RouteConstants.productDetail, arguments: product);
+AppRouter.go(context, RouteConstants.productDetail, arguments: product);
 
 // Generate route configuration
 Route<dynamic> generateRoute(RouteSettings settings) {

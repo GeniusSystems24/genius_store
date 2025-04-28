@@ -33,6 +33,11 @@ data/
 تتبع طبقة البيانات نمط المستودع وتنفذ تجريد مصدر البيانات:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
     subgraph Domain Layer
         DomainEntities[كيانات المجال]
@@ -50,12 +55,26 @@ flowchart TD
         Local[التخزين المحلي]
     end
     
-    RepositoryInterfaces --> RepositoryImplementations
-    RepositoryImplementations --> Models
-    RepositoryImplementations --> DataSources
-    Models --> DomainEntities
-    DataSources --> Remote
-    DataSources --> Local
+    RepositoryInterfaces L_RepositoryInterfaces_RepositoryImplementations_0@--> |تحدد العقود لـ| RepositoryImplementations
+    RepositoryImplementations L_RepositoryImplementations_Models_0@--> |تحول باستخدام| Models
+    RepositoryImplementations L_RepositoryImplementations_DataSources_0@--> |تنسق| DataSources
+    Models L_Models_DomainEntities_0@--> |تخرائط من/إلى| DomainEntities
+    DataSources L_DataSources_Remote_0@--> |تجلب من| Remote
+    DataSources L_DataSources_Local_0@--> |تخزن في| Local
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 4 stroke:#FF5722,fill:none,stroke-width:2px
+    linkStyle 5 stroke:#7E57C2,fill:none,stroke-width:2px
+    
+    L_RepositoryInterfaces_RepositoryImplementations_0@{ animation: fast }
+    L_RepositoryImplementations_Models_0@{ animation: fast } 
+    L_RepositoryImplementations_DataSources_0@{ animation: fast } 
+    L_Models_DomainEntities_0@{ animation: fast }
+    L_DataSources_Remote_0@{ animation: fast }
+    L_DataSources_Local_0@{ animation: fast }
 ```
 
 ## المكونات الرئيسية

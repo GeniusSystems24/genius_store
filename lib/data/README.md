@@ -33,6 +33,11 @@ data/
 The Data layer follows the Repository pattern and implements a Data Source abstraction:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
     subgraph Domain Layer
         DomainEntities[Domain Entities]
@@ -50,12 +55,27 @@ flowchart TD
         Local[Local Storage]
     end
     
-    RepositoryInterfaces --> RepositoryImplementations
-    RepositoryImplementations --> Models
-    RepositoryImplementations --> DataSources
-    Models --> DomainEntities
-    DataSources --> Remote
-    DataSources --> Local
+    RepositoryInterfaces L_RepositoryInterfaces_RepositoryImplementations_0@--> |Defines contracts for| RepositoryImplementations
+    RepositoryImplementations L_RepositoryImplementations_Models_0@--> |Transforms using| Models
+    RepositoryImplementations L_RepositoryImplementations_DataSources_0@--> |Coordinates| DataSources
+    Models L_Models_DomainEntities_0@--> |Maps to/from| DomainEntities
+    DataSources L_DataSources_Remote_0@--> |Fetches from| Remote
+    DataSources L_DataSources_Local_0@--> |Stores in| Local
+    
+    linkStyle 0 stroke:#1E88E5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    linkStyle 3 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 4 stroke:#FF5722,fill:none,stroke-width:2px
+    linkStyle 5 stroke:#7E57C2,fill:none,stroke-width:2px
+    
+    L_RepositoryInterfaces_RepositoryImplementations_0@{ animation: fast }
+    L_RepositoryImplementations_Models_0@{ animation: fast } 
+    L_RepositoryImplementations_DataSources_0@{ animation: fast } 
+    L_Models_DomainEntities_0@{ animation: fast }
+    L_DataSources_Remote_0@{ animation: fast }
+    L_DataSources_Local_0@{ animation: fast }
+
 ```
 
 ## Key Components

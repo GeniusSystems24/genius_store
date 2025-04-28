@@ -31,15 +31,28 @@ screens/
 تتبع كل شاشة نمط تنظيم متسق:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
     subgraph Feature Directory
         FeatureScreen["feature_screen.dart\n(الشاشة الرئيسية)"]
         Components["components/\n(مكونات خاصة بالشاشة)"]
     end
     
-    FeatureScreen --> Components
-    CommonWidgets["../common_widgets/"] --> FeatureScreen
-    Providers["../providers/"] --> FeatureScreen
+    FeatureScreen L_FeatureScreen_Components_0@--> |تحتوي على| Components
+    CommonWidgets["../common_widgets/"] L_CommonWidgets_FeatureScreen_0@--> |توفر واجهة قابلة لإعادة الاستخدام لـ| FeatureScreen
+    Providers["../providers/"] L_Providers_FeatureScreen_0@--> |تزود البيانات لـ| FeatureScreen
+    
+    linkStyle 0 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    
+    L_FeatureScreen_Components_0@{ animation: fast }
+    L_CommonWidgets_FeatureScreen_0@{ animation: fast } 
+    L_Providers_FeatureScreen_0@{ animation: fast }
 ```
 
 ### نمط تنفيذ الشاشة
@@ -56,49 +69,114 @@ flowchart TD
 ### تدفق المصادقة
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 stateDiagram-v2
-    [*] --> SplashScreen
+    [*] --> SplashScreen: يبدأ التطبيق
     SplashScreen --> LoginScreen: غير مصادق
     SplashScreen --> HomeScreen: مصادق بالفعل
-    LoginScreen --> SignupScreen: إنشاء حساب
-    LoginScreen --> ForgotPasswordScreen: نسيت كلمة المرور
-    SignupScreen --> VerificationScreen: تم إنشاء الحساب
-    ForgotPasswordScreen --> ResetPasswordScreen: نجاح التحقق
-    VerificationScreen --> HomeScreen: نجاح التحقق
-    ResetPasswordScreen --> LoginScreen: إعادة تعيين كلمة المرور
-    LoginScreen --> HomeScreen: نجاح تسجيل الدخول
+    LoginScreen --> SignupScreen: ينقر على إنشاء حساب
+    LoginScreen --> ForgotPasswordScreen: ينقر على نسيت كلمة المرور
+    SignupScreen --> VerificationScreen: يكمل التسجيل
+    ForgotPasswordScreen --> ResetPasswordScreen: يتحقق من الهوية
+    VerificationScreen --> HomeScreen: يؤكد الحساب
+    ResetPasswordScreen --> LoginScreen: يحدث كلمة المرور
+    LoginScreen --> HomeScreen: يتم مصادقة المستخدم
+    
+    note right of SplashScreen: فحص حالة التطبيق الأولية
+    note right of LoginScreen: نقطة دخول المصادقة
+    note right of HomeScreen: تجربة التطبيق الرئيسية
+    
+    state SplashScreen {
+        [*] --> CheckAuthState
+        CheckAuthState --> Redirect
+    }
+    
+    state LoginScreen {
+        [*] --> ShowLoginForm
+        ShowLoginForm --> ValidateCredentials: تقديم
+        ValidateCredentials --> ShowError: غير صالح
+        ValidateCredentials --> ProcessLogin: صالح
+    }
 ```
 
 ### تدفق التسوق
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 stateDiagram-v2
-    HomeScreen --> CategoryScreen: عرض الفئة
-    HomeScreen --> SearchResultsScreen: البحث عن منتجات
-    HomeScreen --> ProductDetailsScreen: عرض المنتج
-    CategoryScreen --> ProductDetailsScreen: اختيار منتج
-    SearchResultsScreen --> ProductDetailsScreen: اختيار منتج
-    ProductDetailsScreen --> CartScreen: إضافة إلى السلة
-    CartScreen --> CheckoutScreen: المتابعة إلى الدفع
-    CheckoutScreen --> PaymentScreen: اختيار الشحن
-    PaymentScreen --> OrderConfirmationScreen: نجاح الدفع
-    OrderConfirmationScreen --> HomeScreen: متابعة التسوق
-    OrderConfirmationScreen --> OrderDetailsScreen: عرض تفاصيل الطلب
+    HomeScreen --> CategoryScreen: يتصفح الفئة
+    HomeScreen --> SearchResultsScreen: يجري بحثًا
+    HomeScreen --> ProductDetailsScreen: يختار منتجًا مميزًا
+    CategoryScreen --> ProductDetailsScreen: ينقر على المنتج
+    SearchResultsScreen --> ProductDetailsScreen: يختار نتيجة البحث
+    ProductDetailsScreen --> CartScreen: يضيف إلى السلة
+    CartScreen --> CheckoutScreen: يتابع إلى الدفع
+    CheckoutScreen --> PaymentScreen: يؤكد الشحن
+    PaymentScreen --> OrderConfirmationScreen: يكمل الدفع
+    OrderConfirmationScreen --> HomeScreen: يعود للتسوق
+    OrderConfirmationScreen --> OrderDetailsScreen: يعرض تفاصيل الطلب
+    
+    note right of HomeScreen: اكتشاف المنتج
+    note right of ProductDetailsScreen: تقييم المنتج
+    note right of CartScreen: تحضير الشراء
+    note right of PaymentScreen: معالجة المعاملة
+    
+    state ProductDetailsScreen {
+        [*] --> LoadProduct
+        LoadProduct --> DisplayDetails
+        DisplayDetails --> SelectVariants
+        SelectVariants --> AddToCart
+    }
+    
+    state CheckoutScreen {
+        [*] --> ShowCart
+        ShowCart --> SelectAddress
+        SelectAddress --> SelectShipping
+        SelectShipping --> ReviewOrder
+    }
 ```
 
 ### تدفق إدارة الملف الشخصي
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 stateDiagram-v2
-    HomeScreen --> ProfileScreen: عرض الملف الشخصي
-    ProfileScreen --> EditProfileScreen: تعديل الملف الشخصي
-    ProfileScreen --> AddressesScreen: إدارة العناوين
-    ProfileScreen --> PaymentMethodsScreen: إدارة طرق الدفع
-    ProfileScreen --> OrderHistoryScreen: عرض الطلبات
-    ProfileScreen --> FavoritesScreen: عرض المفضلة
-    OrderHistoryScreen --> OrderDetailsScreen: عرض الطلب
-    AddressesScreen --> AddEditAddressScreen: إضافة/تعديل عنوان
-    PaymentMethodsScreen --> AddEditPaymentScreen: إضافة/تعديل طريقة دفع
+    HomeScreen --> ProfileScreen: يصل إلى الملف الشخصي
+    ProfileScreen --> EditProfileScreen: يحدث المعلومات
+    ProfileScreen --> AddressesScreen: يدير المواقع
+    ProfileScreen --> PaymentMethodsScreen: يكوّن المدفوعات
+    ProfileScreen --> OrderHistoryScreen: يتحقق من الطلبات السابقة
+    ProfileScreen --> FavoritesScreen: يعرض العناصر المحفوظة
+    OrderHistoryScreen --> OrderDetailsScreen: يفحص الطلب
+    AddressesScreen --> AddEditAddressScreen: يعدل العنوان
+    PaymentMethodsScreen --> AddEditPaymentScreen: يغير طريقة الدفع
+    
+    note right of ProfileScreen: مركز إدارة الحساب
+    note right of OrderHistoryScreen: سجل المشتريات
+    note right of AddressesScreen: مواقع التسليم
+    
+    state ProfileScreen {
+        [*] --> LoadUserData
+        LoadUserData --> DisplayOptions
+    }
+    
+    state OrderHistoryScreen {
+        [*] --> FetchOrders
+        FetchOrders --> DisplayOrderList
+        DisplayOrderList --> FilterOrders
+    }
 ```
 
 ## وصف الشاشات الرئيسية

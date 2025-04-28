@@ -18,6 +18,11 @@
 ## نظرة عامة على الشاشات
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 classDiagram
     class ProductScreens {
         +ProductListScreen
@@ -101,24 +106,48 @@ classDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> ProductListScreen
-    ProductListScreen --> ProductFilterScreen: تطبيق المرشحات
+    [*] --> ProductListScreen: يتصفح المنتجات
+    ProductListScreen --> ProductFilterScreen: يطبق المرشحات
     ProductFilterScreen --> ProductListScreen: تم تطبيق المرشحات
     
-    ProductListScreen --> ProductSearchScreen: البحث عن المنتجات
-    ProductSearchScreen --> ProductListScreen: عرض نتائج البحث
+    ProductListScreen --> ProductSearchScreen: يبحث عن المنتجات
+    ProductSearchScreen --> ProductListScreen: يعرض نتائج البحث
     
-    ProductListScreen --> ProductDetailScreen: اختيار المنتج
-    ProductDetailScreen --> ProductReviewScreen: عرض جميع المراجعات
-    ProductReviewScreen --> ProductDetailScreen: العودة إلى التفاصيل
+    ProductListScreen --> ProductDetailScreen: يختار المنتج
+    ProductDetailScreen --> ProductReviewScreen: يعرض جميع المراجعات
+    ProductReviewScreen --> ProductDetailScreen: يعود إلى التفاصيل
     
-    ProductDetailScreen --> ProductCompareScreen: المقارنة مع منتجات أخرى
-    ProductCompareScreen --> ProductDetailScreen: العودة إلى التفاصيل
+    ProductDetailScreen --> ProductCompareScreen: يقارن مع منتجات أخرى
+    ProductCompareScreen --> ProductDetailScreen: يعود إلى التفاصيل
     
-    ProductDetailScreen --> CartScreen: إضافة إلى السلة
-    ProductDetailScreen --> WishlistScreen: إضافة إلى قائمة الرغبات
+    ProductDetailScreen --> CartScreen: يضيف إلى السلة
+    ProductDetailScreen --> WishlistScreen: يضيف إلى قائمة الرغبات
     
-    ProductDetailScreen --> [*]
+    ProductDetailScreen --> [*]: يعود إلى التصفح
+    
+    note right of ProductListScreen: اكتشاف المنتجات
+    note right of ProductDetailScreen: تقييم المنتج
+    note right of ProductReviewScreen: تعليقات العملاء
+    note right of ProductCompareScreen: دعم القرار
+    
+    state ProductListScreen {
+        [*] --> LoadProducts: تهيئة
+        LoadProducts --> DisplayProducts: تم تحميل البيانات
+        DisplayProducts --> ApplySort: ينظم القائمة
+    }
+    
+    state ProductDetailScreen {
+        [*] --> LoadProductDetails: جلب البيانات
+        LoadProductDetails --> DisplayDetails: عرض المعلومات
+        DisplayDetails --> SelectVariant: اختيار الخيارات
+        SelectVariant --> UpdateQuantity: تحديد الكمية
+    }
+    
+    state ProductSearchScreen {
+        [*] --> ShowSearchInput: جاهز للبحث
+        ShowSearchInput --> PerformSearch: يدخل الاستعلام
+        PerformSearch --> DisplayResults: يعرض النتائج المطابقة
+    }
 ```
 
 ## الشاشات الرئيسية

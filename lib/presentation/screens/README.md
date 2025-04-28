@@ -31,15 +31,28 @@ screens/
 Each screen follows a consistent organization pattern:
 
 ```mermaid
+---
+config:
+  look: classic
+  layout: elk
+---
 flowchart TD
     subgraph Feature Directory
         FeatureScreen["feature_screen.dart\n(Main screen)"]
         Components["components/\n(Screen-specific components)"]
     end
     
-    FeatureScreen --> Components
-    CommonWidgets["../common_widgets/"] --> FeatureScreen
-    Providers["../providers/"] --> FeatureScreen
+    FeatureScreen L_FeatureScreen_Components_0@--> |Contains| Components
+    CommonWidgets["../common_widgets/"] L_CommonWidgets_FeatureScreen_0@--> |Provides reusable UI to| FeatureScreen
+    Providers["../providers/"] L_Providers_FeatureScreen_0@--> |Supplies data to| FeatureScreen
+    
+    linkStyle 0 stroke:#42A5F5,fill:none,stroke-width:2px
+    linkStyle 1 stroke:#4CAF50,fill:none,stroke-width:2px
+    linkStyle 2 stroke:#FFA000,fill:none,stroke-width:2px
+    
+    L_FeatureScreen_Components_0@{ animation: fast }
+    L_CommonWidgets_FeatureScreen_0@{ animation: fast } 
+    L_Providers_FeatureScreen_0@{ animation: fast }
 ```
 
 ### Screen Implementation Pattern
@@ -57,48 +70,100 @@ Each screen typically follows this structure:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> SplashScreen
+    [*] --> SplashScreen: Launches app
     SplashScreen --> LoginScreen: Not authenticated
     SplashScreen --> HomeScreen: Already authenticated
-    LoginScreen --> SignupScreen: Create account
-    LoginScreen --> ForgotPasswordScreen: Forgot password
-    SignupScreen --> VerificationScreen: Account created
-    ForgotPasswordScreen --> ResetPasswordScreen: Verification successful
-    VerificationScreen --> HomeScreen: Verification successful
-    ResetPasswordScreen --> LoginScreen: Password reset
-    LoginScreen --> HomeScreen: Login successful
+    LoginScreen --> SignupScreen: Taps create account
+    LoginScreen --> ForgotPasswordScreen: Taps forgot password
+    SignupScreen --> VerificationScreen: Completes signup
+    ForgotPasswordScreen --> ResetPasswordScreen: Verifies identity
+    VerificationScreen --> HomeScreen: Confirms account
+    ResetPasswordScreen --> LoginScreen: Updates password
+    LoginScreen --> HomeScreen: Authenticates user
+    
+    note right of SplashScreen: Initial app state check
+    note right of LoginScreen: Authentication entry point
+    note right of HomeScreen: Main app experience
+    
+    state SplashScreen {
+        [*] --> CheckAuthState
+        CheckAuthState --> Redirect
+    }
+    
+    state LoginScreen {
+        [*] --> ShowLoginForm
+        ShowLoginForm --> ValidateCredentials: Submit
+        ValidateCredentials --> ShowError: Invalid
+        ValidateCredentials --> ProcessLogin: Valid
+    }
 ```
 
 ### Shopping Flow
 
 ```mermaid
 stateDiagram-v2
-    HomeScreen --> CategoryScreen: View category
-    HomeScreen --> SearchResultsScreen: Search products
-    HomeScreen --> ProductDetailsScreen: View product
-    CategoryScreen --> ProductDetailsScreen: Select product
-    SearchResultsScreen --> ProductDetailsScreen: Select product
-    ProductDetailsScreen --> CartScreen: Add to cart
-    CartScreen --> CheckoutScreen: Proceed to checkout
-    CheckoutScreen --> PaymentScreen: Select shipping
-    PaymentScreen --> OrderConfirmationScreen: Payment successful
-    OrderConfirmationScreen --> HomeScreen: Continue shopping
-    OrderConfirmationScreen --> OrderDetailsScreen: View order details
+    HomeScreen --> CategoryScreen: Browses category
+    HomeScreen --> SearchResultsScreen: Performs search
+    HomeScreen --> ProductDetailsScreen: Selects featured product
+    CategoryScreen --> ProductDetailsScreen: Taps product
+    SearchResultsScreen --> ProductDetailsScreen: Chooses search result
+    ProductDetailsScreen --> CartScreen: Adds to cart
+    CartScreen --> CheckoutScreen: Proceeds to checkout
+    CheckoutScreen --> PaymentScreen: Confirms shipping
+    PaymentScreen --> OrderConfirmationScreen: Completes payment
+    OrderConfirmationScreen --> HomeScreen: Returns to shopping
+    OrderConfirmationScreen --> OrderDetailsScreen: Views order details
+    
+    note right of HomeScreen: Product discovery
+    note right of ProductDetailsScreen: Product evaluation
+    note right of CartScreen: Purchase preparation
+    note right of PaymentScreen: Transaction processing
+    
+    state ProductDetailsScreen {
+        [*] --> LoadProduct
+        LoadProduct --> DisplayDetails
+        DisplayDetails --> SelectVariants
+        SelectVariants --> AddToCart
+    }
+    
+    state CheckoutScreen {
+        [*] --> ShowCart
+        ShowCart --> SelectAddress
+        SelectAddress --> SelectShipping
+        SelectShipping --> ReviewOrder
+    }
 ```
 
 ### Profile Management Flow
 
 ```mermaid
 stateDiagram-v2
-    HomeScreen --> ProfileScreen: View profile
-    ProfileScreen --> EditProfileScreen: Edit profile
-    ProfileScreen --> AddressesScreen: Manage addresses
-    ProfileScreen --> PaymentMethodsScreen: Manage payment methods
-    ProfileScreen --> OrderHistoryScreen: View orders
-    ProfileScreen --> FavoritesScreen: View favorites
-    OrderHistoryScreen --> OrderDetailsScreen: View order
-    AddressesScreen --> AddEditAddressScreen: Add/edit address
-    PaymentMethodsScreen --> AddEditPaymentScreen: Add/edit payment method
+    HomeScreen --> ProfileScreen: Accesses profile
+    ProfileScreen --> EditProfileScreen: Updates info
+    ProfileScreen --> AddressesScreen: Manages locations
+    ProfileScreen --> PaymentMethodsScreen: Configures payments
+    ProfileScreen --> OrderHistoryScreen: Checks past orders
+    ProfileScreen --> FavoritesScreen: Views saved items
+    OrderHistoryScreen --> OrderDetailsScreen: Examines order
+    AddressesScreen --> AddEditAddressScreen: Modifies address
+    PaymentMethodsScreen --> AddEditPaymentScreen: Changes payment method
+    
+    note right of ProfileScreen: Account management hub
+    note right of OrderHistoryScreen: Purchase history
+    note right of AddressesScreen: Delivery locations
+    
+    state ProfileScreen {
+        [*] --> LoadUserData
+        LoadUserData --> DisplayOptions
+    }
+    
+    state OrderHistoryScreen {
+        [*] --> FetchOrders
+        FetchOrders --> DisplayOrderList
+        DisplayOrderList --> FilterOrders
+    }
+    
+  
 ```
 
 ## Key Screen Descriptions

@@ -7,12 +7,12 @@ class AppCarouselSlider extends StatefulWidget {
   final double aspectRatio;
 
   const AppCarouselSlider({
-    Key? key,
+    super.key,
     required this.items,
     this.onTap,
     this.height = 180.0,
     this.aspectRatio = 16 / 9,
-  }) : super(key: key);
+  });
 
   @override
   State<AppCarouselSlider> createState() => _AppCarouselSliderState();

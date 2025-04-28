@@ -5,10 +5,10 @@ class AppSearchBar extends StatefulWidget {
   final String hintText;
 
   const AppSearchBar({
-    Key? key,
+    super.key,
     required this.onSearch,
     this.hintText = 'ابحث عن منتجات...',
-  }) : super(key: key);
+  });
 
   @override
   State<AppSearchBar> createState() => _AppSearchBarState();

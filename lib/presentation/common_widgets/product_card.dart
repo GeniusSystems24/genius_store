@@ -4,13 +4,13 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String imageUrl;
   final double price;
-  final int? discountPercentage;
+  final double? discountPercentage;
   final double? rating;
   final VoidCallback onTap;
   final bool showFavoriteButton;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.imageUrl,
     required this.price,
@@ -18,7 +18,8 @@ class ProductCard extends StatelessWidget {
     this.rating,
     required this.onTap,
     this.showFavoriteButton = true,
-  }) : super(key: key);
+  })  : assert(discountPercentage == null || (discountPercentage >= 0.0 && discountPercentage <= 1.0),
+            'Discount percentage must be between 0 and 1');
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class ProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 4,
               offset: const Offset(0, 2),
@@ -80,7 +81,7 @@ class ProductCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: Colors.grey.withValues(alpha: 0.2),
                             spreadRadius: 1,
                             blurRadius: 1,
                             offset: const Offset(0, 1),
@@ -114,7 +115,7 @@ class ProductCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '$discountPercentage% خصم',
+                        '${((discountPercentage ?? 0) * 100).toInt()}% خصم',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,

@@ -6,8 +6,10 @@ class AppConstants {
   static const String registerRoute = '/register';
   static const String productDetailsRoute = '/product';
   static const String cartRoute = '/cart';
-  static const String checkoutRoute = '/checkout';
+  static const String checkoutRoute = '/cart/checkout';
   static const String profileRoute = '/profile';
+  static const String settingsRoute = '/profile/settings';
+  static const String forgotPasswordRoute = '/login/forgot-password';
 
   // Asset paths
   static const String logoPath = 'assets/images/logo.png';

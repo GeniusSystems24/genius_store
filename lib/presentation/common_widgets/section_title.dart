@@ -7,12 +7,12 @@ class SectionTitle extends StatelessWidget {
   final String seeAllText;
 
   const SectionTitle({
-    Key? key,
+    super.key,
     required this.title,
     this.onSeeAllPressed,
     this.titleStyle,
     this.seeAllText = 'عرض الكل',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

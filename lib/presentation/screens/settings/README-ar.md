@@ -17,26 +17,236 @@
 ## نظرة عامة على الشاشات
 
 ```mermaid
-graph TD
-    A[SettingsMainScreen] --> B[ThemeSettingsScreen]
-    A --> C[LanguageSettingsScreen]
-    A --> D[NotificationSettingsScreen]
-    A --> E[AccountSettingsScreen]
-    A --> F[PrivacyAndSecurityScreen]
-    A --> G[AboutAppScreen]
+---
+config:
+  look: classic
+  layout: elk
+---
+classDiagram
+    class SettingsScreens {
+        +SettingsMainScreen
+        +ThemeSettingsScreen
+        +LanguageSettingsScreen
+        +PrivacySecurityScreen
+        +AccessibilitySettingsScreen
+        +DataUsageScreen
+        +AboutAppScreen
+    }
     
-    E --> H[ProfileEditScreen]
-    E --> I[AddressManagementScreen]
-    E --> J[PaymentMethodsScreen]
+    class SettingsMainScreen {
+        +settings: AppSettings
+        +isLoading: bool
+        +loadSettings(): Future~void~
+        +navigateToThemeSettings(): void
+        +navigateToLanguageSettings(): void
+        +navigateToPrivacySecurity(): void
+        +navigateToAccessibilitySettings(): void
+        +navigateToDataUsage(): void
+        +navigateToAboutApp(): void
+    }
     
-    I --> K[AddNewAddressScreen]
-    I --> L[EditAddressScreen]
+    class ThemeSettingsScreen {
+        +currentTheme: ThemeMode
+        +isDarkMode: bool
+        +accentColor: Color
+        +isSystemDefault: bool
+        +updateTheme(ThemeMode): Future~void~
+        +toggleDarkMode(bool): Future~void~
+        +updateAccentColor(Color): Future~void~
+        +resetToSystemDefault(): Future~void~
+    }
     
-    J --> M[AddNewPaymentMethodScreen]
-    J --> N[EditPaymentMethodScreen]
+    class LanguageSettingsScreen {
+        +currentLocale: Locale
+        +availableLocales: List~Locale~
+        +isLoading: bool
+        +updateLanguage(Locale): Future~void~
+        +detectSystemLanguage(): Locale
+        +resetToSystemLanguage(): Future~void~
+    }
     
-    F --> O[PrivacySettingsScreen]
-    F --> P[SecuritySettingsScreen]
+    class PrivacySecurityScreen {
+        +privacySettings: PrivacySettings
+        +isLoading: bool
+        +isBiometricEnabled: bool
+        +isLocationTrackingEnabled: bool
+        +isAnalyticsEnabled: bool
+        +loadPrivacySettings(): Future~void~
+        +toggleBiometric(bool): Future~void~
+        +toggleLocationTracking(bool): Future~void~
+        +toggleAnalytics(bool): Future~void~
+        +clearBrowsingData(): Future~void~
+        +deleteSearchHistory(): Future~void~
+    }
+    
+    class AccessibilitySettingsScreen {
+        +accessibilitySettings: AccessibilitySettings
+        +isLoading: bool
+        +textScaleFactor: double
+        +isHighContrastEnabled: bool
+        +isReducedMotionEnabled: bool
+        +loadAccessibilitySettings(): Future~void~
+        +updateTextScale(double): Future~void~
+        +toggleHighContrast(bool): Future~void~
+        +toggleReducedMotion(bool): Future~void~
+    }
+    
+    class DataUsageScreen {
+        +dataSavingMode: bool
+        +cacheSize: int
+        +imageQualitySetting: ImageQuality
+        +isWifiOnlyDownloads: bool
+        +loadDataSettings(): Future~void~
+        +toggleDataSavingMode(bool): Future~void~
+        +clearCache(): Future~void~
+        +updateImageQuality(ImageQuality): Future~void~
+        +toggleWifiOnlyDownloads(bool): Future~void~
+        +calculateCacheSize(): Future~int~
+    }
+    
+    class AboutAppScreen {
+        +appVersion: String
+        +buildNumber: String
+        +legalInfo: LegalInfo
+        +isLoading: bool
+        +loadAppInfo(): Future~void~
+        +checkForUpdates(): Future~UpdateInfo~
+        +viewLicenses(): void
+        +viewPrivacyPolicy(): void
+        +viewTermsOfService(): void
+    }
+    
+    SettingsScreens --> SettingsMainScreen
+    SettingsScreens --> ThemeSettingsScreen
+    SettingsScreens --> LanguageSettingsScreen
+    SettingsScreens --> PrivacySecurityScreen
+    SettingsScreens --> AccessibilitySettingsScreen
+    SettingsScreens --> DataUsageScreen
+    SettingsScreens --> AboutAppScreen
+```
+
+## تدفق المستخدم
+
+```mermaid
+stateDiagram-v2
+    [*] --> SettingsMainScreen: يفتح الإعدادات
+    
+    SettingsMainScreen --> ThemeSettingsScreen: يعدل المظهر
+    ThemeSettingsScreen --> SettingsMainScreen: يطبق تغييرات السمة
+    
+    SettingsMainScreen --> LanguageSettingsScreen: يغير اللغة
+    LanguageSettingsScreen --> SettingsMainScreen: يختار اللغة
+    
+    SettingsMainScreen --> PrivacySecurityScreen: يدير الخصوصية
+    PrivacySecurityScreen --> SettingsMainScreen: يحدث إعدادات الأمان
+    
+    SettingsMainScreen --> AccessibilitySettingsScreen: يكون إمكانية الوصول
+    AccessibilitySettingsScreen --> SettingsMainScreen: يطبق خيارات إمكانية الوصول
+    
+    SettingsMainScreen --> DataUsageScreen: يدير استخدام البيانات
+    DataUsageScreen --> SettingsMainScreen: يحفظ تفضيلات البيانات
+    
+    SettingsMainScreen --> AboutAppScreen: يعرض معلومات التطبيق
+    AboutAppScreen --> LicensesScreen: يستكشف التراخيص
+    AboutAppScreen --> PrivacyPolicyScreen: يقرأ سياسة الخصوصية
+    AboutAppScreen --> TermsOfServiceScreen: يراجع الشروط
+    AboutAppScreen --> SettingsMainScreen: يعود إلى الإعدادات
+    
+    note right of SettingsMainScreen: مركز الإعدادات المركزي
+    note right of ThemeSettingsScreen: تخصيص المظهر
+    note right of PrivacySecurityScreen: ضوابط الأمان
+    note right of DataUsageScreen: إدارة الموارد
+    
+    state SettingsMainScreen {
+        [*] --> LoadSettings: تهيئة
+        LoadSettings --> DisplayOptions: تم تحميل الإعدادات
+        DisplayOptions --> HandleSelection: المستخدم يختار خيارًا
+    }
+    
+    state ThemeSettingsScreen {
+        [*] --> LoadThemeData: الحصول على السمة الحالية
+        LoadThemeData --> ShowThemeOptions: عرض الخيارات
+        ShowThemeOptions --> ApplyChanges: المستخدم يختار السمة
+    }
+    
+    state PrivacySecurityScreen {
+        [*] --> LoadPrivacySettings: جلب الإعدادات
+        LoadPrivacySettings --> ShowPrivacyOptions: عرض التبديلات
+        ShowPrivacyOptions --> UpdatePrivacy: المستخدم يغير الإعداد
+    }
+```
+
+## مخططات تدفق الشاشات
+
+### تدفق التنقل في الإعدادات
+
+```mermaid
+stateDiagram-v2
+    HomeScreen --> SettingsMainScreen: ينقر على أيقونة الإعدادات
+    ProfileScreen --> SettingsMainScreen: يصل إلى الإعدادات
+    
+    SettingsMainScreen --> ThemeSettingsScreen: يختار المظهر
+    SettingsMainScreen --> LanguageSettingsScreen: يختار اللغة
+    SettingsMainScreen --> PrivacySecurityScreen: يدير الخصوصية
+    SettingsMainScreen --> AccessibilitySettingsScreen: يعدل إمكانية الوصول
+    SettingsMainScreen --> DataUsageScreen: يتحكم في استخدام البيانات
+    SettingsMainScreen --> AboutAppScreen: يعرض معلومات التطبيق
+    
+    ThemeSettingsScreen --> ColorPickerScreen: يختار لونًا مخصصًا
+    LanguageSettingsScreen --> DownloadLanguageScreen: يحصل على لغة جديدة
+    PrivacySecurityScreen --> BiometricSetupScreen: يفعل المقاييس الحيوية
+    PrivacySecurityScreen --> DataDeletionScreen: يمسح البيانات الشخصية
+    
+    AboutAppScreen --> UpdateScreen: يتحقق من التحديثات
+    AboutAppScreen --> LegalInformationScreen: يعرض المستندات القانونية
+    
+    note right of SettingsMainScreen: مركز التكوين المركزي
+    note right of ThemeSettingsScreen: تفضيلات المظهر
+    note right of PrivacySecurityScreen: حماية البيانات
+    
+    state SettingsMainScreen {
+        [*] --> LoadSettings
+        LoadSettings --> DisplayCategories
+    }
+    
+    state PrivacySecurityScreen {
+        [*] --> LoadSecurityOptions
+        LoadSecurityOptions --> DisplayToggles
+    }
+```
+
+### تدفق تخصيص المظهر
+
+```mermaid
+stateDiagram-v2
+    SettingsMainScreen --> ThemeSettingsScreen: يختار المظهر
+    
+    ThemeSettingsScreen --> LightThemeScreen: يختار السمة الفاتحة
+    ThemeSettingsScreen --> DarkThemeScreen: يختار السمة الداكنة
+    ThemeSettingsScreen --> SystemThemeScreen: يستخدم إعداد النظام
+    
+    LightThemeScreen --> ColorPickerScreen: يخصص لون التمييز
+    DarkThemeScreen --> ColorPickerScreen: يخصص لون التمييز
+    
+    ColorPickerScreen --> FontSettingsScreen: يعدل الطباعة
+    FontSettingsScreen --> ThemeSettingsScreen: يكمل التخصيص
+    
+    ThemeSettingsScreen --> SettingsMainScreen: يطبق التغييرات
+    
+    note right of ThemeSettingsScreen: تكوين المظهر
+    note right of ColorPickerScreen: تخصيص الألوان
+    note right of FontSettingsScreen: مظهر النص
+    
+    state ThemeSettingsScreen {
+        [*] --> LoadCurrentTheme
+        LoadCurrentTheme --> DisplayThemeOptions
+        DisplayThemeOptions --> PreviewChanges: المستخدم يختار خيارًا
+    }
+    
+    state ColorPickerScreen {
+        [*] --> ShowColorPalette
+        ShowColorPalette --> ApplySelectedColor
+    }
 ```
 
 ## الشاشات الرئيسية

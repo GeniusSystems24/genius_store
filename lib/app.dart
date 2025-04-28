@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/core.dart';
+// Direct imports to avoid circular imports
+import 'core/config/app_config.dart';
+import 'core/theme/app_theme.dart';
+import 'core/localization/app_localizations.dart';
+import 'core/routes/app_router.dart';
 
 /// Main application widget
 class App extends ConsumerWidget {
   /// Constructor
-  const App({Key? key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+    // Get the router from the provider
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
@@ -28,11 +35,8 @@ class App extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      // Routing
-      initialRoute: AppConstants.homeRoute,
-      onGenerateRoute: AppRouter.generateRoute,
-
-      home: const Scaffold(body: Center(child: Text('Genius Store'))),
+      // Router configuration
+      routerConfig: router,
     );
   }
 }
